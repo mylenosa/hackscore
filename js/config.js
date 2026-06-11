@@ -3,8 +3,8 @@
 'use strict';
 
 var CONFIG = {
-  SUPABASE_URL: 'COLE_AQUI_A_URL_DO_PROJETO',      // ex: https://abcdefgh.supabase.co
-  SUPABASE_ANON_KEY: 'COLE_AQUI_A_ANON_KEY',
+  SUPABASE_URL: 'https://wfrzphrxhctvqguubxge.supabase.co',      // ex: https://abcdefgh.supabase.co
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcnpwaHJ4aGN0dnFndXVieGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExNDE2NDIsImV4cCI6MjA5NjcxNzY0Mn0.cU1nULoSbZJwtJIQSu43K_BLxJ3D0fnElICdZnNj0Zs',
   // a senha do admin fica no banco (tabela config) — veja supabase/schema.sql
   POLL_MS: 5000 // intervalo de atualização automática das telas
 };
