@@ -115,17 +115,8 @@
   <div id="tp-rev" class="tp">
     <div class="card">
       <div class="card-title">Tela de revelação</div>
-      <div class="card-hint">Projete no telão e revele os vencedores com suspense, categoria por categoria. Pressione Esc para sair do telão.</div>
-      <div class="field">
-        <label for="rev-cat-sel">Categoria</label>
-        <select id="rev-cat-sel">
-          <option value="emp">Desafio Empresa e Comunidade</option>
-          <option value="liv">Desafio Livre de Impacto Regional</option>
-          <option value="pio">Desafio Pior Experiência de Usuário</option>
-        </select>
-      </div>
-      <div id="rev-warn" class="toast-warn" style="display:none"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span></span></div>
-      <button class="btn btn-primary btn-full" onclick="Telao.iniciar()"><i class="ti ti-player-play" aria-hidden="true"></i> Abrir tela de revelação</button>
+      <div class="card-hint">Abre em uma nova aba, própria para projetar no telão — assim este painel não aparece na projeção. Na aba aberta você escolhe a categoria e revela o pódio (3º → 2º → 1º) com suspense e som.</div>
+      <button class="btn btn-primary btn-full" onclick="window.open('telao.html','_blank')"><i class="ti ti-external-link" aria-hidden="true"></i> Abrir tela de revelação (nova aba)</button>
     </div>
   </div>
 </div>
@@ -205,11 +196,6 @@
   </div>
 </div>
 
-<!-- TELÃO -->
-<div id="s-telao" class="screen">
-  <div id="telao-body"></div>
-</div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -219,7 +205,6 @@
 <script src="js/ui.js"></script>
 <script src="js/admin.js"></script>
 <script src="js/aval.js"></script>
-<script src="js/telao.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

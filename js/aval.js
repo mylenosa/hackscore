@@ -98,7 +98,7 @@ var Aval = (function () {
     var html = '';
     CATS[cat].crit.forEach(function (c, i) {
       html += '<div class="card crit-row"><div class="crit-name">' + c.n + '</div><div class="crit-inp-row">' +
-        '<input type="number" id="ci-' + i + '" min="0" max="' + c.max + '" value="0" step="1" inputmode="numeric" aria-label="' + esc(c.n) + '">' +
+        '<input type="number" id="ci-' + i + '" min="0" max="' + c.max + '" step="1" inputmode="numeric" placeholder="0" aria-label="' + esc(c.n) + '">' +
         '<span class="crit-max">/ ' + c.max + ' pts</span><div class="crit-bar"><div class="crit-bar-fill" id="cb-' + i + '" style="width:0%"></div></div>' +
         '</div></div>';
     });

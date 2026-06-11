@@ -128,9 +128,15 @@ var Admin = (function () {
     nomes.forEach(function (a) {
       var p = Store.progressoDe(a);
       var pct = total ? Math.round(p.done / total * 100) : 0;
+      // chips por categoria: verde com check quando o avaliador terminou todas daquela categoria
+      var chips = Store.progressoPorCategoria(a).map(function (pc) {
+        return '<span class="cat-chip ' + CATS[pc.cat].bc + (pc.completo ? ' cat-chip-done' : '') + '">' +
+          (pc.completo ? '<i class="ti ti-check" aria-hidden="true"></i> ' : '') +
+          esc(CATS[pc.cat].label) + ' ' + pc.done + '/' + pc.total + '</span>';
+      }).join('');
       html += '<div class="trow"><div class="trow-grow"><div class="trow-name">' + esc(a) + '</div>' +
         '<div class="pw"><div class="pf" style="width:' + pct + '%"></div></div>' +
-        '<div class="trow-sub">' + p.done + '/' + total + ' equipes</div></div>' +
+        '<div class="cat-chips">' + chips + '</div></div>' +
         '<button class="btn btn-sm btn-danger trow-action" data-remove-av="' + esc(a) + '" aria-label="Remover avaliador ' + esc(a) + '"><i class="ti ti-trash" aria-hidden="true"></i></button></div>';
     });
     el.innerHTML = html;
