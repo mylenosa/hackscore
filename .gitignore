@@ -1,0 +1,23 @@
+# Local/OS/editor files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Environment and secrets
+.env
+.env.*
+
+# Logs and temp files
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Node/package manager artifacts, if they appear later
+node_modules/
+dist/
+coverage/
+
+# Project-specific local material
+Edital_Equipes_Participantes___Hackathon_2026 2.pdf
+supabase/schema.sql

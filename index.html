@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hackathon IFRO 2026 — Sistema de Avaliação</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app">
+
+<!-- HOME -->
+<div id="s-home" class="screen active">
+  <div class="home-wrap">
+    <h1 class="home-title">Hackathon IFRO 2026</h1>
+    <div class="home-sub">Ariquemes — sistema de avaliação</div>
+    <div class="card card-clickable" onclick="UI.goTo('s-admin-login')">
+      <div class="home-entry">
+        <div class="home-icon home-icon-admin"><i class="ti ti-settings" aria-hidden="true"></i></div>
+        <div class="trow-grow">
+          <div class="home-entry-title">Administrador</div>
+          <div class="home-entry-sub">Equipes, avaliadores e revelação</div>
+        </div>
+        <i class="ti ti-arrow-right home-arrow" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div class="card card-clickable" onclick="UI.goTo('s-aval-login')">
+      <div class="home-entry">
+        <div class="home-icon home-icon-aval"><i class="ti ti-star" aria-hidden="true"></i></div>
+        <div class="trow-grow">
+          <div class="home-entry-title">Avaliador (banca)</div>
+          <div class="home-entry-sub">Avaliar equipes por critério</div>
+        </div>
+        <i class="ti ti-arrow-right home-arrow" aria-hidden="true"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div id="s-admin-login" class="screen">
+  <div class="topbar">
+    <button class="btn btn-sm" onclick="UI.goTo('s-home')"><i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar</button>
+    <span class="tb-label">Admin</span>
+    <div class="tb-spacer"></div>
+  </div>
+  <div class="body body-narrow">
+    <h2 class="page-title">Entrar como admin</h2>
+    <div class="page-sub">Acesso exclusivo para o coordenador.</div>
+    <div class="field">
+      <label for="adm-pwd">Senha</label>
+      <input type="password" id="adm-pwd" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')Admin.login()">
+    </div>
+    <div id="adm-err" class="err-msg" style="display:none" role="alert" aria-live="polite"><i class="ti ti-alert-circle" aria-hidden="true"></i><span></span></div>
+    <div class="gap-12"></div>
+    <button class="btn btn-primary btn-full" onclick="Admin.login()">Entrar</button>
+  </div>
+</div>
+
+<!-- ADMIN PAINEL -->
+<div id="s-admin" class="screen">
+  <div class="topbar">
+    <div class="tb-title"><i class="ti ti-settings" aria-hidden="true"></i> Admin</div>
+    <button class="btn btn-sm btn-danger" onclick="Admin.logout()">Sair</button>
+  </div>
+  <div class="nav-tabs" role="tablist">
+    <button class="nav-tab act" role="tab" aria-selected="true" onclick="Admin.switchTab(this,'tp-eq')">Equipes</button>
+    <button class="nav-tab" role="tab" aria-selected="false" onclick="Admin.switchTab(this,'tp-av')">Avaliadores</button>
+    <button class="nav-tab" role="tab" aria-selected="false" onclick="Admin.switchTab(this,'tp-res')">Resultados</button>
+    <button class="nav-tab" role="tab" aria-selected="false" onclick="Admin.switchTab(this,'tp-rev')">Revelação</button>
+  </div>
+
+  <div id="tp-eq" class="tp act">
+    <div class="card">
+      <div class="card-title">Adicionar equipe</div>
+      <div class="grid-2">
+        <div class="field field-tight">
+          <label for="eq-nome">Nome da equipe</label>
+          <input type="text" id="eq-nome" placeholder="Ex: ByteForce" onkeydown="if(event.key==='Enter')Admin.addEquipe()">
+        </div>
+        <div class="field field-tight">
+          <label for="eq-cat">Categoria</label>
+          <select id="eq-cat">
+            <option value="emp">Empresa e Comunidade</option>
+            <option value="liv">Impacto Regional</option>
+            <option value="pio">Pior Experiência UX</option>
+          </select>
+        </div>
+      </div>
+      <div id="eq-err" class="err-msg" style="display:none;margin-top:8px" role="alert" aria-live="polite"><i class="ti ti-alert-circle" aria-hidden="true"></i><span></span></div>
+      <button class="btn btn-primary" style="margin-top:12px" onclick="Admin.addEquipe(this)"><i class="ti ti-plus" aria-hidden="true"></i> Adicionar</button>
+    </div>
+    <div id="lista-eq"></div>
+  </div>
+
+  <div id="tp-av" class="tp">
+    <div class="card">
+      <div class="card-title">Código de acesso da banca</div>
+      <div class="card-hint">Avaliadores usam esse código para entrar. Defina antes do evento.</div>
+      <div class="input-row">
+        <input type="text" id="cod-inp" class="input-inline input-uppercase" placeholder="Ex: BANCA2026">
+        <button class="btn btn-primary btn-sm" onclick="Admin.saveCod(this)">Salvar</button>
+      </div>
+      <div id="cod-ok" class="toast-ok" style="display:none;margin-top:8px"><i class="ti ti-check" aria-hidden="true"></i> Código salvo com sucesso.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Avaliadores</div>
+      <div id="lista-av"></div>
+    </div>
+  </div>
+
+  <div id="tp-res" class="tp"><div id="painel-res"></div></div>
+
+  <div id="tp-rev" class="tp">
+    <div class="card">
+      <div class="card-title">Tela de revelação</div>
+      <div class="card-hint">Projete no telão e revele os vencedores com suspense, categoria por categoria. Pressione Esc para sair do telão.</div>
+      <div class="field">
+        <label for="rev-cat-sel">Categoria</label>
+        <select id="rev-cat-sel">
+          <option value="emp">Desafio Empresa e Comunidade</option>
+          <option value="liv">Desafio Livre de Impacto Regional</option>
+          <option value="pio">Desafio Pior Experiência de Usuário</option>
+        </select>
+      </div>
+      <div id="rev-warn" class="toast-warn" style="display:none"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span></span></div>
+      <button class="btn btn-primary btn-full" onclick="Telao.iniciar()"><i class="ti ti-player-play" aria-hidden="true"></i> Abrir tela de revelação</button>
+    </div>
+  </div>
+</div>
+
+<!-- AVALIADOR LOGIN -->
+<div id="s-aval-login" class="screen">
+  <div class="topbar">
+    <button class="btn btn-sm" onclick="UI.goTo('s-home')"><i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar</button>
+    <span class="tb-label">Avaliador</span>
+    <div class="tb-spacer"></div>
+  </div>
+  <div class="body body-narrow">
+    <h2 class="page-title">Entrar como avaliador</h2>
+    <div class="page-sub">Use o código fornecido pelo professor.</div>
+    <div class="field">
+      <label for="av-cod">Código da banca</label>
+      <input type="text" id="av-cod" class="input-uppercase" placeholder="Ex: BANCA2026" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="av-nome">Seu nome completo</label>
+      <input type="text" id="av-nome" placeholder="Ex: Prof. João Silva" autocomplete="name" onkeydown="if(event.key==='Enter')Aval.login()">
+    </div>
+    <div id="av-err" class="err-msg" style="display:none" role="alert" aria-live="polite"><i class="ti ti-alert-circle" aria-hidden="true"></i><span></span></div>
+    <div class="gap-12"></div>
+    <button class="btn btn-primary btn-full" onclick="Aval.login(this)">Entrar</button>
+  </div>
+</div>
+
+<!-- AVALIADOR PAINEL -->
+<div id="s-aval" class="screen">
+  <div class="topbar">
+    <div>
+      <div class="tb-title" id="av-tb-nome"></div>
+      <div class="tb-sub" id="av-tb-prog"></div>
+    </div>
+    <button class="btn btn-sm btn-danger" onclick="Aval.logout()">Sair</button>
+  </div>
+  <div class="body" id="av-body"></div>
+</div>
+
+<!-- FORMULÁRIO DE AVALIAÇÃO -->
+<div id="s-form" class="screen">
+  <div class="topbar">
+    <button class="btn btn-sm" onclick="Aval.voltarLista()"><i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar</button>
+    <div class="tb-context">
+      <div class="tb-context-main" id="fm-team"></div>
+      <div class="tb-context-sub" id="fm-cat"></div>
+    </div>
+  </div>
+  <div class="body body-form">
+    <div id="fm-crit"></div>
+    <div class="card">
+      <div class="total-card-head">
+        <div>
+          <div class="total-lbl">Total calculado</div>
+          <div class="total-val" id="fm-total" aria-live="polite">0 pts</div>
+        </div>
+        <div style="text-align:right">
+          <div class="total-lbl">Máximo</div>
+          <div class="total-max">100 pts</div>
+        </div>
+      </div>
+      <div class="pw total-pw"><div class="pf" id="fm-pbar" style="width:0%"></div></div>
+    </div>
+    <div id="fm-confirm" class="confirm-box" style="display:none">
+      <div class="confirm-title">Confirmar avaliação?</div>
+      <div class="confirm-sub">Após enviar, as notas não poderão ser alteradas.</div>
+      <div class="confirm-actions">
+        <button class="btn btn-sm" onclick="Aval.cancelConfirm()">Cancelar</button>
+        <button class="btn btn-primary btn-sm" onclick="Aval.enviar(this)"><i class="ti ti-check" aria-hidden="true"></i> Confirmar envio</button>
+      </div>
+    </div>
+    <div id="fm-sent" class="toast-ok" style="display:none" role="status"><i class="ti ti-check" aria-hidden="true"></i> Avaliação enviada com sucesso!</div>
+    <div id="fm-btnwrap">
+      <button class="btn btn-primary btn-full" onclick="Aval.showConfirm()"><i class="ti ti-send" aria-hidden="true"></i> Enviar avaliação</button>
+    </div>
+  </div>
+</div>
+
+<!-- TELÃO -->
+<div id="s-telao" class="screen">
+  <div id="telao-body"></div>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/aval.js"></script>
+<script src="js/telao.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
