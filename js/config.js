@@ -18,7 +18,7 @@ var CATS = {
       { n: 'MVP ou protótipo funcional online', max: 20 },
       { n: 'Impacto, validação, prospecção ou tentativa de implantação', max: 20 },
       { n: 'Uso responsável e produtivo de inteligência artificial', max: 10 },
-      { n: 'Qualidade técnica, organização do código e documentação', max: 10 },
+      { n: 'Qualidade técnica, organização do código e documentação no GitHub', max: 10 },
       { n: 'Usabilidade, acessibilidade e experiência do usuário', max: 10 },
       { n: 'Pitch, clareza da apresentação e defesa da solução', max: 10 }
     ]
@@ -30,7 +30,7 @@ var CATS = {
       { n: 'MVP ou protótipo funcional online', max: 20 },
       { n: 'Impacto, validação, prospecção ou tentativa de implantação', max: 20 },
       { n: 'Uso responsável e produtivo de inteligência artificial', max: 10 },
-      { n: 'Qualidade técnica, organização do código e documentação', max: 10 },
+      { n: 'Qualidade técnica, organização do código e documentação no GitHub', max: 10 },
       { n: 'Usabilidade, acessibilidade e experiência do usuário', max: 10 },
       { n: 'Pitch, clareza da apresentação e defesa da solução', max: 10 }
     ]

@@ -10,17 +10,19 @@ var Admin = (function () {
 
   async function login(btn) {
     var inp = document.getElementById('adm-pwd');
-    if (!inp.value) { UI.showErr('adm-err', 'Digite a senha.'); return; }
+    // normaliza igual ao banco: sem espaços nas pontas e em CAPS
+    var senha = inp.value.trim().toUpperCase();
+    if (!senha) { UI.showErr('adm-err', 'Digite a senha.'); return; }
     await UI.busy(btn, async function () {
       var ok;
       try {
-        ok = await Api.adminLogin(inp.value);
+        ok = await Api.adminLogin(senha);
       } catch (e) {
         UI.showErr('adm-err', e.message); return;
       }
       if (!ok) { UI.showErr('adm-err', 'Senha incorreta.'); return; }
       UI.hideErr('adm-err');
-      pwd = inp.value;
+      pwd = senha;
       inp.value = '';
       try {
         await Store.sync();

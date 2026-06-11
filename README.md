@@ -25,18 +25,22 @@ supabase/schema.sql script de criação das tabelas e funções
 Arquitetura em camadas: **HTML (visão) → módulos de tela → Store (negócio) → Api (dados)**.
 Nenhuma tela fala com o banco diretamente, e a Api não conhece o DOM.
 
-## Como configurar (faça uma vez)
+## Configuração do Supabase (uma vez)
 
-1. Crie um projeto gratuito em [supabase.com](https://supabase.com).
-2. No painel, abra **SQL Editor** e execute o conteúdo de `supabase/schema.sql`.
-3. Em **Settings → API**, copie a *Project URL* e a *anon public key*.
-4. Cole as duas em `js/config.js` (`SUPABASE_URL` e `SUPABASE_ANON_KEY`).
-5. Publique a pasta em qualquer host estático (GitHub Pages, Netlify, Vercel)
+1. Crie um projeto em [supabase.com](https://supabase.com) (plano gratuito).
+2. **SQL Editor** → cole e execute o [`supabase/schema.sql`](supabase/schema.sql) inteiro.
+   O script é idempotente (pode re-executar sem perder dados) e cria tabelas,
+   políticas RLS e funções. Para reutilizar em outro evento, basta trocar a
+   senha padrão no bloco "Valores iniciais".
+3. **Settings → API** → copie a *Project URL* e a *anon public key* para
+   `js/config.js` (`SUPABASE_URL` e `SUPABASE_ANON_KEY`).
+4. Publique a pasta em qualquer host estático (Vercel, GitHub Pages, Netlify)
    ou rode local com `npx serve`. Todos acessam a mesma URL.
 
 ## Perfis de acesso (mesma URL)
 
-**Admin (professor)** — senha definida no banco (padrão `123`, altere em `supabase/schema.sql` antes de executar)
+**Admin (professor)** — senha definida no banco (padrão `123456`; altere na tabela
+`config` ou no `schema.sql` antes de executar)
 - Cadastra equipes por categoria; define o código de acesso da banca
 - Acompanha resultados em tempo real, com média por critério
 - Vê, por avaliador, o progresso **por categoria** (chip verde com ✓ quando concluiu a categoria)
@@ -72,6 +76,8 @@ Há botão de mudo (canto superior). Nunca há empate — ver desempate automát
 
 - A senha do admin e o código da banca ficam **somente no banco** — não aparecem no
   código-fonte do site. A validação acontece em funções Postgres (`security definer`).
+- Senha e código **não diferenciam maiúsculas de minúsculas** (e ignoram espaços nas
+  pontas): `abc123` e `ABC123` funcionam igual — menos erro de digitação no celular.
 - RLS: a chave anônima (pública) só consegue **ler** equipes e avaliações. Inserir nota
   exige o código da banca válido; criar/remover equipes, trocar o código e remover
   avaliadores exigem a senha do admin. Notas nunca podem ser editadas ou apagadas pela
