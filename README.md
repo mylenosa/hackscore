@@ -7,17 +7,19 @@ as notas dos avaliadores sincronizam entre todos os dispositivos em tempo real (
 ## Estrutura do projeto
 
 ```
-index.html          marcação das telas (sem lógica)
+index.html          telas de admin e avaliador
+telao.html          página da projeção (abre em aba separada)
 css/styles.css      estilos (tokens → base → componentes → telas → telão)
-js/config.js        credenciais do Supabase, senha do admin, categorias e critérios do edital
+js/config.js        credenciais do Supabase, categorias e critérios do edital
 js/api.js           camada de acesso a dados — só este arquivo conhece o Supabase
 js/store.js         estado + regras de negócio (médias, ranking com empate, progresso)
 js/ui.js            utilitários de interface (navegação, escape de HTML, mensagens)
 js/admin.js         telas do administrador
 js/aval.js          telas do avaliador (login, lista, formulário de notas)
-js/telao.js         tela de revelação
+js/telao.js         lógica da revelação (usada por telao.html)
+js/sound.js         efeitos sonoros gerados via Web Audio API (sem arquivos)
 js/app.js           inicialização, eventos e atualização automática
-supabase/schema.sql script de criação das tabelas
+supabase/schema.sql script de criação das tabelas e funções
 ```
 
 Arquitetura em camadas: **HTML (visão) → módulos de tela → Store (negócio) → Api (dados)**.
@@ -37,15 +39,18 @@ Nenhuma tela fala com o banco diretamente, e a Api não conhece o DOM.
 **Admin (professor)** — senha definida no banco (padrão `123`, altere em `supabase/schema.sql` antes de executar)
 - Cadastra equipes por categoria; define o código de acesso da banca
 - Acompanha resultados em tempo real, com média por critério
-- Abre a tela de revelação para o telão (Esc sai do telão)
+- Vê, por avaliador, o progresso **por categoria** (chip verde com ✓ quando concluiu a categoria)
+- Abre a tela de revelação em **nova aba** (o painel do admin não aparece na projeção)
 
 **Avaliador (banca)** — código da banca + nome
-- Avalia cada equipe pelos critérios do edital, com confirmação antes do envio
-- Notas bloqueadas após envio (o banco impede reenvio: restrição `unique`)
+- Avalia cada equipe pelos critérios do edital; campos de nota começam **vazios** (placeholder 0)
+- Confirmação antes do envio; notas bloqueadas após envio (o banco impede reenvio: restrição `unique`)
 - Sessão sobrevive a recarregar a página (sessionStorage)
 
-**Telão** — revelação do último colocado ao campeão, com suspense, confete e ranking final.
-Empates são tratados: equipes com a mesma média dividem a posição.
+**Telão** (`telao.html`) — escolhe a categoria e revela o **pódio**: 3º → 2º → 1º, cada um com
+suspense (tambores animados + **som** via Web Audio) e o campeão com fanfarra e confete.
+Ao final, mostra a classificação até o 5º lugar com ouro/prata/bronze.
+Há botão de mudo (canto superior). Empates dividem a posição.
 
 ## Regras de negócio
 

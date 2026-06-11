@@ -30,7 +30,6 @@
     }
     Admin.bindListas();
     Aval.bindLista();
-    Telao.bind();
     startPolling();
     // se o avaliador recarregou a página, volta direto para o painel dele
     await Aval.retomarSessao();

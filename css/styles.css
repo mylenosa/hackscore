@@ -406,6 +406,49 @@ body {
   vertical-align: middle;
 }
 
+/* ── Chips de progresso por categoria (admin → avaliadores) ── */
+.cat-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  opacity: 0.65;
+}
+.cat-chip-done { opacity: 1; box-shadow: inset 0 0 0 1.5px currentColor; }
+
+/* ── Telão: seletor de categoria, botão de mudo, medalhas ── */
+.telao-pick-wrap { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 520px; margin-top: clamp(16px, 3vw, 32px); }
+.telao-pick { width: 100%; justify-content: center; }
+.telao-mute {
+  position: absolute;
+  top: clamp(16px, 3vw, 32px);
+  right: clamp(16px, 3vw, 32px);
+  z-index: 3;
+  width: clamp(40px, 5vw, 56px);
+  height: clamp(40px, 5vw, 56px);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 0.5px solid #444441;
+  color: #B4B2A9;
+  cursor: pointer;
+  font-size: clamp(18px, 2.2vw, 26px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.telao-mute:hover { background: rgba(255,255,255,0.16); }
+
+.trr.silver { background: #1C1F24; border-color: #6E7681; }
+.trr.bronze { background: #241A12; border-color: #8A5A2B; }
+.g-gold { color: var(--amber) !important; }
+.g-silver { color: #C9D1D9 !important; }
+.g-bronze { color: #D89B6A !important; }
+
 /* ── Responsivo por faixa de dispositivo ── */
 /* celulares pequenos */
 @media (max-width: 400px) {

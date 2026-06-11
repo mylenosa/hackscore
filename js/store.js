@@ -117,6 +117,16 @@ var Store = (function () {
     return { done: done, total: state.equipes.length };
   }
 
+  /* Progresso de um avaliador por categoria.
+     Retorna [{cat, done, total, completo}] só das categorias que têm equipes. */
+  function progressoPorCategoria(avaliador) {
+    return CAT_KEYS.map(function (cat) {
+      var eqs = equipesDa(cat);
+      var done = eqs.filter(function (eq) { return jaAvaliou(eq.id, avaliador); }).length;
+      return { cat: cat, done: done, total: eqs.length, completo: eqs.length > 0 && done === eqs.length };
+    }).filter(function (p) { return p.total > 0; });
+  }
+
   function setAvalSessao(nome, cod) {
     state.avalNome = nome;
     state.avalCod = cod;
@@ -141,6 +151,7 @@ var Store = (function () {
     ranking: ranking,
     jaAvaliou: jaAvaliou,
     progressoDe: progressoDe,
+    progressoPorCategoria: progressoPorCategoria,
     setAvalSessao: setAvalSessao
   };
 })();
