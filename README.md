@@ -68,7 +68,7 @@ Empates são tratados: equipes com a mesma média dividem a posição.
 - A senha do admin e o código da banca ficam **somente no banco** — não aparecem no
   código-fonte do site. A validação acontece em funções Postgres (`security definer`).
 - Senha e código **não diferenciam maiúsculas de minúsculas** (e ignoram espaços nas
-  pontas): `ifro2026` e `IFRO2026` funcionam igual — menos erro de digitação no celular.
+  pontas): `abc123` e `ABC123` funcionam igual — menos erro de digitação no celular.
 - RLS: a chave anônima (pública) só consegue **ler** equipes e avaliações. Inserir nota
   exige o código da banca válido; criar/remover equipes, trocar o código e remover
   avaliadores exigem a senha do admin. Notas nunca podem ser editadas ou apagadas pela
