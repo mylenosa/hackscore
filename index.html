@@ -35,6 +35,76 @@
         <i class="ti ti-arrow-right home-arrow" aria-hidden="true"></i>
       </div>
     </div>
+    <button class="help-link" onclick="UI.abrirAjuda()"><i class="ti ti-help-circle" aria-hidden="true"></i> Como funciona o sistema?</button>
+  </div>
+</div>
+
+<!-- AJUDA / COMO FUNCIONA -->
+<div id="s-ajuda" class="screen">
+  <div class="topbar">
+    <button class="btn btn-sm" onclick="UI.fecharAjuda()"><i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar</button>
+    <span class="tb-label">Como funciona</span>
+    <div class="tb-spacer"></div>
+  </div>
+  <div class="body">
+
+    <details class="card faq">
+      <summary>Como as notas são calculadas?</summary>
+      <p>Cada avaliador dá uma nota por critério (a soma máxima é <strong>100 pontos</strong>).
+      A pontuação final da equipe é a <strong>média</strong> entre todos os avaliadores que a avaliaram.
+      Exemplo: se uma equipe recebeu 80 de um avaliador e 90 de outro, sua pontuação é 85,0.</p>
+    </details>
+
+    <details class="card faq">
+      <summary>Como funciona o desempate?</summary>
+      <p>O sistema <strong>nunca termina em empate</strong>. Se duas equipes ficarem com a mesma
+      média total, aplica-se uma cascata de critérios, do mais relevante ao último recurso:</p>
+      <ol>
+        <li><strong>Critérios de maior peso</strong> — vence quem tiver maior média no critério
+        que vale mais pontos; persistindo, passa-se ao próximo critério, e assim por diante.</li>
+        <li><strong>Maior nota mínima</strong> — vence a equipe que convenceu até o avaliador
+        mais rigoroso (a menor nota recebida por ela é mais alta que a da concorrente).</li>
+        <li><strong>Consistência</strong> — vence a equipe com notas mais parecidas entre os
+        avaliadores (menor desvio), indicando maior consenso da banca.</li>
+        <li><strong>Ordem de cadastro</strong> — último recurso, apenas se as notas forem
+        estatisticamente idênticas em tudo (caso raríssimo).</li>
+      </ol>
+      <p>No painel de resultados do admin, equipes desempatadas recebem a tag
+      <em>desempate</em> com a indicação de qual regra decidiu.</p>
+    </details>
+
+    <details class="card faq">
+      <summary>Posso alterar uma nota depois de enviar?</summary>
+      <p><strong>Não.</strong> Após a confirmação do envio, as notas ficam travadas — o próprio
+      banco de dados rejeita um segundo envio do mesmo avaliador para a mesma equipe. Isso protege
+      a integridade da competição. Se houve um erro real de digitação, procure a coordenação:
+      o admin pode remover a sua avaliação para que você avalie novamente.</p>
+    </details>
+
+    <details class="card faq">
+      <summary>Quais são as categorias e critérios?</summary>
+      <div id="ajuda-cats"></div>
+    </details>
+
+    <details class="card faq">
+      <summary>Como funciona a revelação no telão?</summary>
+      <p>O admin projeta a tela de revelação no telão. Para cada categoria, o pódio é revelado
+      com suspense, do 3º lugar ao campeão, e ao final aparece a classificação até o 5º lugar.
+      Apenas a equipe campeã de cada categoria é premiada, conforme o edital.</p>
+    </details>
+
+    <details class="card faq">
+      <summary>Minhas notas como avaliador são públicas?</summary>
+      <p>O painel do admin mostra a média por critério de cada equipe e quais avaliadores já
+      concluíram. No telão, apenas a pontuação média final é exibida. As notas individuais por
+      avaliador ficam registradas no sistema para fins de auditoria pela coordenação.</p>
+    </details>
+
+    <div class="card faq-footer">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      Outras dúvidas? Procure a Coordenação do Curso de ADS — casos omissos são
+      decididos por ela, conforme o edital do evento.
+    </div>
   </div>
 </div>
 
@@ -68,16 +138,16 @@
     <button class="nav-tab act" role="tab" aria-selected="true" onclick="Admin.switchTab(this,'tp-eq')">Equipes</button>
     <button class="nav-tab" role="tab" aria-selected="false" onclick="Admin.switchTab(this,'tp-av')">Avaliadores</button>
     <button class="nav-tab" role="tab" aria-selected="false" onclick="Admin.switchTab(this,'tp-res')">Resultados</button>
-    <button class="nav-tab" role="tab" aria-selected="false" onclick="Admin.switchTab(this,'tp-rev')">Revelação</button>
   </div>
 
   <div id="tp-eq" class="tp act">
     <div class="card">
       <div class="card-title">Adicionar equipe</div>
+      <div class="card-hint">Para cadastrar várias de uma vez, separe os nomes com ponto e vírgula: <code>Alpha;Beta;Gama</code>.</div>
       <div class="grid-2">
         <div class="field field-tight">
           <label for="eq-nome">Nome da equipe</label>
-          <input type="text" id="eq-nome" placeholder="Ex: ByteForce" onkeydown="if(event.key==='Enter')Admin.addEquipe()">
+          <input type="text" id="eq-nome" placeholder="Ex: ByteForce ou Alpha;Beta;Gama" onkeydown="if(event.key==='Enter')Admin.addEquipe()">
         </div>
         <div class="field field-tight">
           <label for="eq-cat">Categoria</label>
@@ -89,6 +159,7 @@
         </div>
       </div>
       <div id="eq-err" class="err-msg" style="display:none;margin-top:8px" role="alert" aria-live="polite"><i class="ti ti-alert-circle" aria-hidden="true"></i><span></span></div>
+      <div id="eq-ok" class="toast-ok" style="display:none;margin-top:8px"><i class="ti ti-check" aria-hidden="true"></i><span></span></div>
       <button class="btn btn-primary" style="margin-top:12px" onclick="Admin.addEquipe(this)"><i class="ti ti-plus" aria-hidden="true"></i> Adicionar</button>
     </div>
     <div id="lista-eq"></div>
@@ -108,16 +179,34 @@
       <div class="card-title">Avaliadores</div>
       <div id="lista-av"></div>
     </div>
+
+    <div class="card danger-zone" style="display:none">
+      <div class="card-title dz-title"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Zona de perigo</div>
+      <div class="card-hint">Apaga <strong>todas</strong> as equipes e avaliações. A senha do admin e o código da banca são mantidos.
+        Esta ação não pode ser desfeita — se precisar do registro, exporte o CSV na aba Resultados antes.</div>
+      <button id="dz-open" class="btn btn-danger" onclick="Admin.abrirReset()"><i class="ti ti-trash" aria-hidden="true"></i> Apagar tudo</button>
+      <div id="dz-confirm" class="confirm-box" style="display:none">
+        <div class="confirm-title">Tem certeza absoluta?</div>
+        <div class="confirm-sub">Digite <strong>APAGAR</strong> para liberar o botão.</div>
+        <div class="input-row">
+          <input type="text" id="dz-input" class="input-inline input-uppercase" placeholder="APAGAR" autocomplete="off" oninput="Admin.checarReset()">
+          <button id="dz-btn" class="btn btn-danger btn-sm" disabled onclick="Admin.resetAll(this)">Confirmar reset</button>
+          <button class="btn btn-sm" onclick="Admin.fecharReset()">Cancelar</button>
+        </div>
+      </div>
+      <div id="dz-ok" class="toast-ok" style="display:none;margin-top:8px"><i class="ti ti-check" aria-hidden="true"></i> Sistema zerado com sucesso.</div>
+    </div>
   </div>
 
-  <div id="tp-res" class="tp"><div id="painel-res"></div></div>
-
-  <div id="tp-rev" class="tp">
-    <div class="card">
-      <div class="card-title">Tela de revelação</div>
-      <div class="card-hint">Abre em uma nova aba, própria para projetar no telão — assim este painel não aparece na projeção. Na aba aberta você escolhe a categoria e revela o pódio (3º → 2º → 1º) com suspense e som.</div>
-      <button class="btn btn-primary btn-full" onclick="window.open('telao.html','_blank')"><i class="ti ti-external-link" aria-hidden="true"></i> Abrir tela de revelação (nova aba)</button>
+  <div id="tp-res" class="tp">
+    <div class="res-actions">
+      <button class="btn btn-sm" onclick="UI.abrirAjuda()"><i class="ti ti-help-circle" aria-hidden="true"></i> Como funciona</button>
+      <button class="btn btn-sm" onclick="Admin.copiarRanking()"><i class="ti ti-copy" aria-hidden="true"></i> Copiar ranking</button>
+      <button class="btn btn-sm" onclick="Admin.exportCsv()"><i class="ti ti-download" aria-hidden="true"></i> Exportar CSV</button>
+      <button class="btn btn-sm btn-primary" onclick="window.open('telao.html','_blank')"><i class="ti ti-external-link" aria-hidden="true"></i> Revelação (telão)</button>
     </div>
+    <div id="rank-ok" class="toast-ok" style="display:none;margin-bottom:8px"><i class="ti ti-check" aria-hidden="true"></i> Ranking copiado!</div>
+    <div id="painel-res"></div>
   </div>
 </div>
 

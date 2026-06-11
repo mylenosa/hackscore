@@ -128,6 +128,25 @@ begin
   delete from public.avaliacoes where avaliador = p_nome;
 end $$;
 
+-- Cadastro em lote: insere várias equipes de uma vez na mesma categoria
+create or replace function public.admin_add_equipes(p_pwd text, p_nomes text[], p_cat text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  perform public._exigir_admin(p_pwd);
+  insert into public.equipes (nome, cat)
+  select trim(n), p_cat from unnest(p_nomes) as n
+  where coalesce(trim(n), '') <> '';
+end $$;
+
+-- Reset total: apaga equipes e avaliações; preserva config (senha e código)
+create or replace function public.admin_reset_all(p_pwd text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  perform public._exigir_admin(p_pwd);
+  delete from public.avaliacoes where true;
+  delete from public.equipes where true;
+end $$;
+
 -- ─── API pública: envio de avaliação (exige o código da banca) ─────────────
 -- Retorna: 'ok' | 'duplicada' | 'codigo_invalido'
 

@@ -23,6 +23,16 @@ var UI = (function () {
     return el ? el.id : null;
   }
 
+  /* Tela de ajuda: guarda de onde veio para o "Voltar" devolver ao lugar certo */
+  var telaAnterior = null;
+  function abrirAjuda() {
+    telaAnterior = activeScreen();
+    goTo('s-ajuda');
+  }
+  function fecharAjuda() {
+    goTo(telaAnterior && telaAnterior !== 's-ajuda' ? telaAnterior : 's-home');
+  }
+
   function showErr(id, msg) {
     var e = document.getElementById(id);
     e.style.display = 'flex';
@@ -53,5 +63,5 @@ var UI = (function () {
     }
   }
 
-  return { esc: esc, goTo: goTo, activeScreen: activeScreen, showErr: showErr, hideErr: hideErr, badge: badge, catHeader: catHeader, busy: busy };
+  return { esc: esc, goTo: goTo, activeScreen: activeScreen, abrirAjuda: abrirAjuda, fecharAjuda: fecharAjuda, showErr: showErr, hideErr: hideErr, badge: badge, catHeader: catHeader, busy: busy };
 })();

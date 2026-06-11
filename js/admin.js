@@ -61,17 +61,26 @@ var Admin = (function () {
     if (document.getElementById('tp-res').classList.contains('act')) renderResultados();
   }
 
+  /* Aceita uma equipe ou várias separadas por ";" (ex: Alpha;Beta;Gama) */
   async function addEquipe(btn) {
-    var nome = document.getElementById('eq-nome').value.trim();
+    var nomes = document.getElementById('eq-nome').value
+      .split(';')
+      .map(function (n) { return n.trim(); })
+      .filter(function (n) { return n; });
     var cat = document.getElementById('eq-cat').value;
-    if (!nome) { UI.showErr('eq-err', 'Informe o nome da equipe.'); return; }
+    if (!nomes.length) { UI.showErr('eq-err', 'Informe o nome da equipe.'); return; }
     UI.hideErr('eq-err');
     await UI.busy(btn, async function () {
       try {
-        await Api.addEquipe(pwd, nome, cat);
+        if (nomes.length === 1) await Api.addEquipe(pwd, nomes[0], cat);
+        else await Api.addEquipes(pwd, nomes, cat);
         document.getElementById('eq-nome').value = '';
         await Store.sync();
         renderEquipes();
+        var ok = document.getElementById('eq-ok');
+        ok.querySelector('span').textContent = nomes.length + ' equipe(s) adicionada(s).';
+        ok.style.display = 'flex';
+        setTimeout(function () { ok.style.display = 'none'; }, 2500);
       } catch (e) {
         UI.showErr('eq-err', e.message);
       }
@@ -89,6 +98,7 @@ var Admin = (function () {
     var el = document.getElementById('lista-eq');
     if (!Store.state.equipes.length) {
       el.innerHTML = '<div class="empty"><i class="ti ti-users" aria-hidden="true"></i><p>Nenhuma equipe cadastrada.<br>Adicione acima.</p></div>';
+      document.getElementById('dz-open').closest('.danger-zone').style.display = 'none';
       return;
     }
     var html = '';
@@ -105,6 +115,8 @@ var Admin = (function () {
       html += '</div></div>';
     });
     el.innerHTML = html;
+    document.getElementById('dz-open').closest('.danger-zone').style.display =
+      Store.state.equipes.length > 0 ? 'block' : 'none';
   }
 
   async function saveCod(btn) {
@@ -176,8 +188,10 @@ var Admin = (function () {
         var ouro = r.pos === 1 && temNota;
         html += '<div class="res-item"><div class="res-pos' + (ouro ? ' gold-text' : '') + '">' + r.pos + 'º</div>' +
           '<div class="trow-grow"><div class="trow-name">' + esc(r.eq.nome) +
-          (r.desempate ? ' <span class="tie-tag" title="Mesma média total — posição definida pelos critérios de maior peso">desempate</span>' : '') +
-          '</div><div class="pw res-pw"><div class="pf" style="width:' + pct + '%"></div></div></div>' +
+          (r.desempate ? ' <span class="tie-tag">desempate</span>' : '') +
+          '</div>' +
+          (r.desempate && r.motivoDesempate ? '<div class="tie-reason">Desempate por ' + esc(r.motivoDesempate) + '</div>' : '') +
+          '<div class="pw res-pw"><div class="pf" style="width:' + pct + '%"></div></div></div>' +
           '<div class="res-pts' + (ouro ? ' gold-text' : '') + '">' + m + '</div></div>';
       });
       html += renderDetalhes(cat, ranked);
@@ -189,7 +203,10 @@ var Admin = (function () {
   function renderDetalhes(cat, ranked) {
     var html = '<details class="res-details"><summary>Detalhes por critério</summary>';
     ranked.forEach(function (r) {
-      html += '<div class="res-det-team"><div class="res-det-name">' + esc(r.eq.nome) + '</div>';
+      html += '<div class="res-det-team">' +
+        '<div class="res-det-head"><div class="res-det-name">' + esc(r.eq.nome) + '</div>' +
+        '<button class="btn btn-sm res-det-copy" data-copy-eq="' + r.eq.id + '" data-copy-cat="' + cat + '" title="Copiar análise desta equipe">' +
+        '<i class="ti ti-clipboard" aria-hidden="true"></i> Copiar</button></div>';
       if (!r.mc) {
         html += '<div class="res-det-empty">Sem avaliações.</div>';
       } else {
@@ -200,6 +217,137 @@ var Admin = (function () {
       html += '</div>';
     });
     return html + '</details>';
+  }
+
+  function copiarAnaliseEquipe(eqId, cat) {
+    var ranked = Store.ranking(cat);
+    var r = ranked.find(function (x) { return x.eq.id === eqId; });
+    if (!r) return;
+    var medals = ['🥇', '🥈', '🥉'];
+    var pos = (medals[r.pos - 1] || r.pos + 'º');
+    var avs = Object.keys(Store.notasDe(eqId)).length;
+    var linhas = [
+      '📊 ' + r.eq.nome + ' — ' + CATS[cat].label,
+      pos + ' lugar · ' + (r.media !== null ? r.media.toFixed(1) + ' pts' : 'sem nota') + ' (' + avs + ' avaliador' + (avs !== 1 ? 'es' : '') + ')',
+      ''
+    ];
+    if (r.mc) {
+      CATS[cat].crit.forEach(function (c, i) {
+        linhas.push(c.n + ': ' + r.mc[i].toFixed(1).replace('.', ',') + ' / ' + c.max + ' pts');
+      });
+    }
+    if (r.desempate && r.motivoDesempate) {
+      linhas.push('');
+      linhas.push('ℹ️ Posição decidida por desempate: ' + r.motivoDesempate);
+    }
+    linhas.push('');
+    linhas.push('🏫 Hackathon Extensionista IFRO Ariquemes 2026/1');
+    navigator.clipboard.writeText(linhas.join('\n'));
+    var ok = document.getElementById('rank-ok');
+    ok.querySelector ? (ok.querySelector('span') ? ok.querySelector('span').textContent = 'Análise copiada!' : null) : null;
+    ok.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> Análise de ' + esc(r.eq.nome) + ' copiada!';
+    ok.style.display = 'flex';
+    setTimeout(function () { ok.style.display = 'none'; }, 2500);
+  }
+
+  /* ── Zona de perigo: reset total com confirmação digitada ── */
+
+  function abrirReset() {
+    document.getElementById('dz-open').style.display = 'none';
+    document.getElementById('dz-confirm').style.display = 'block';
+    var inp = document.getElementById('dz-input');
+    inp.value = '';
+    document.getElementById('dz-btn').disabled = true;
+    inp.focus();
+  }
+
+  function fecharReset() {
+    document.getElementById('dz-confirm').style.display = 'none';
+    document.getElementById('dz-open').style.display = 'inline-flex';
+  }
+
+  function checarReset() {
+    var v = document.getElementById('dz-input').value.trim().toUpperCase();
+    document.getElementById('dz-btn').disabled = (v !== 'APAGAR');
+  }
+
+  async function resetAll(btn) {
+    await UI.busy(btn, async function () {
+      try {
+        await Api.resetAll(pwd);
+      } catch (e) {
+        alert(e.message);
+        return;
+      }
+      await Store.sync();
+      fecharReset();
+      renderEquipes();
+      var ok = document.getElementById('dz-ok');
+      ok.style.display = 'flex';
+      setTimeout(function () { ok.style.display = 'none'; }, 3000);
+    });
+  }
+
+  /* ── Exportação CSV (ata/backup das notas) ── */
+
+  function csvCell(v) {
+    v = String(v == null ? '' : v);
+    return /[;"\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+  }
+
+  function exportCsv() {
+    var linhas = [['Categoria', 'Posição', 'Equipe', 'Avaliador',
+      'Critério 1', 'Critério 2', 'Critério 3', 'Critério 4', 'Critério 5', 'Critério 6', 'Critério 7',
+      'Total do avaliador', 'Média da equipe']];
+    CAT_KEYS.forEach(function (cat) {
+      Store.ranking(cat).forEach(function (r) {
+        var notas = Store.notasDe(r.eq.id);
+        var avs = Object.keys(notas).sort();
+        var media = r.media !== null ? String(r.media).replace('.', ',') : '';
+        if (!avs.length) {
+          linhas.push([CATS[cat].full, r.pos + 'º', r.eq.nome, '(sem avaliações)', '', '', '', '', '', '', '', '', media]);
+          return;
+        }
+        avs.forEach(function (a) {
+          var ns = notas[a];
+          var row = [CATS[cat].full, r.pos + 'º', r.eq.nome, a];
+          for (var i = 0; i < 7; i++) row.push(ns[i] != null ? ns[i] : '');
+          row.push(Store.somaNotas(ns));
+          row.push(media);
+          linhas.push(row);
+        });
+      });
+    });
+    // BOM para o Excel reconhecer UTF-8; ";" como separador (padrão pt-BR)
+    var csv = '﻿' + linhas.map(function (l) { return l.map(csvCell).join(';'); }).join('\r\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'hackscore-notas-' + new Date().toISOString().slice(0, 10) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function copiarRanking() {
+    var linhas = ['🏆 Ranking — Hackathon IFRO 2026\n'];
+    CAT_KEYS.forEach(function (cat) {
+      var rank = Store.ranking(cat);
+      if (!rank.length) return;
+      linhas.push('\n' + CATS[cat].label);
+      rank.forEach(function (item) {
+        var medals = ['🥇', '🥈', '🥉'];
+        var pos = medals[item.pos - 1] || (item.pos + 'º');
+        linhas.push(pos + ' ' + item.eq.nome + ' — ' + item.media.toFixed(1) + ' pts');
+      });
+    });
+    navigator.clipboard.writeText(linhas.join('\n')).then(function () {
+      var ok = document.getElementById('rank-ok');
+      ok.style.display = 'flex';
+      setTimeout(function () { ok.style.display = 'none'; }, 2000);
+    });
   }
 
   /* Delegação de eventos: os botões de remover usam data-attributes,
@@ -213,7 +361,16 @@ var Admin = (function () {
       var btn = ev.target.closest('[data-remove-av]');
       if (btn) removeAvaliador(btn.dataset.removeAv);
     });
+    document.getElementById('painel-res').addEventListener('click', function (ev) {
+      var btn = ev.target.closest('[data-copy-eq]');
+      if (btn) copiarAnaliseEquipe(btn.dataset.copyEq, btn.dataset.copyCat);
+    });
   }
 
-  return { login: login, logout: logout, switchTab: switchTab, refresh: refresh, addEquipe: addEquipe, saveCod: saveCod, bindListas: bindListas };
+  return {
+    login: login, logout: logout, switchTab: switchTab, refresh: refresh,
+    addEquipe: addEquipe, saveCod: saveCod, bindListas: bindListas,
+    abrirReset: abrirReset, fecharReset: fecharReset, checarReset: checarReset,
+    resetAll: resetAll, exportCsv: exportCsv, copiarRanking: copiarRanking, copiarAnaliseEquipe: copiarAnaliseEquipe
+  };
 })();

@@ -58,6 +58,16 @@ var Api = (function () {
       return rpc('admin_add_equipe', { p_pwd: pwd, p_nome: nome, p_cat: cat }, 'Erro ao adicionar equipe');
     },
 
+    /* várias equipes de uma vez, mesma categoria */
+    addEquipes: function (pwd, nomes, cat) {
+      return rpc('admin_add_equipes', { p_pwd: pwd, p_nomes: nomes, p_cat: cat }, 'Erro ao adicionar equipes');
+    },
+
+    /* apaga TODAS as equipes e avaliações (config é preservada) */
+    resetAll: function (pwd) {
+      return rpc('admin_reset_all', { p_pwd: pwd }, 'Erro ao resetar o sistema');
+    },
+
     removeEquipe: function (pwd, id) {
       return rpc('admin_remove_equipe', { p_pwd: pwd, p_id: id }, 'Erro ao remover equipe');
     },
