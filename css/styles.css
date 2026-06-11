@@ -449,6 +449,91 @@ body {
 .g-silver { color: #C9D1D9 !important; }
 .g-bronze { color: #D89B6A !important; }
 
+/* ── Telão: suspense com crescendo ── */
+.suspense-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0 !important;
+  background: radial-gradient(circle at 50% 60%, rgba(29,158,117,0.22), transparent 60%);
+  animation: glow-pulse 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.12); }
+}
+.telao-drum-label { animation: glow-pulse 1.2s ease-in-out infinite; }
+
+/* ── Telão: clímax da revelação ── */
+.telao-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 50 !important;
+  background: #fff;
+  pointer-events: none;
+  animation: telao-flash 0.5s ease-out forwards;
+}
+@keyframes telao-flash {
+  0% { opacity: 0.95; }
+  100% { opacity: 0; }
+}
+.reveal-pop { animation: reveal-pop 0.55s cubic-bezier(0.18, 1.4, 0.4, 1) both; }
+@keyframes reveal-pop {
+  0% { opacity: 0; transform: scale(1.6); }
+  60% { opacity: 1; transform: scale(0.96); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* ── Telão: pódio final ── */
+.podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(10px, 2vw, 28px);
+  width: 100%;
+  max-width: 900px;
+  height: clamp(220px, 42vh, 480px);
+  margin-bottom: clamp(16px, 3vw, 36px);
+}
+.pod-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+  max-width: clamp(120px, 24vw, 260px);
+  height: 100%;
+}
+.pod-team { margin-bottom: 10px; opacity: 0; transition: opacity 0.4s 0.35s; }
+.pod-col.up .pod-team { opacity: 1; }
+.pod-trophy { font-size: clamp(28px, 5vw, 64px); color: var(--amber); margin-bottom: 4px; }
+.pod-name { font-size: clamp(14px, 2.4vw, 28px); font-weight: 700; color: #F1EFE8; line-height: 1.15; word-break: break-word; }
+.pod-pts { font-size: clamp(12px, 1.6vw, 20px); margin-top: 2px; }
+.pod-block {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: clamp(8px, 1.5vw, 18px);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  height: 0;
+  transition: height 0.6s cubic-bezier(0.22, 1.1, 0.36, 1);
+}
+.pod-pos { font-size: clamp(22px, 4vw, 52px); font-weight: 700; }
+.pod-1 .pod-block { background: #2A1F05; border: 0.5px solid #854F0B; border-bottom: none; }
+.pod-2 .pod-block { background: #1C1F24; border: 0.5px solid #6E7681; border-bottom: none; }
+.pod-3 .pod-block { background: #241A12; border: 0.5px solid #8A5A2B; border-bottom: none; }
+.pod-1.up .pod-block { height: 62%; }
+.pod-2.up .pod-block { height: 44%; }
+.pod-3.up .pod-block { height: 32%; }
+
+.podium-rest, .podium-actions { opacity: 0; transition: opacity 0.5s; }
+.podium-rest.shown, .podium-actions.shown { opacity: 1; }
+.podium-rest { width: 100%; max-width: 700px; margin-bottom: clamp(16px, 2.5vw, 32px); }
+.trr-sm { padding: clamp(8px, 1.2vw, 14px) clamp(12px, 2vw, 24px); }
+.trr-sm .trr-name { font-size: clamp(13px, 2vw, 22px); font-weight: 600; }
+.trr-sm .trr-pos { font-size: clamp(14px, 2.2vw, 26px); }
+
 /* ── Responsivo por faixa de dispositivo ── */
 /* celulares pequenos */
 @media (max-width: 400px) {
@@ -475,4 +560,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .pf, .crit-bar-fill, .drum-bar { transition: none; }
   .cp { animation-duration: 0.5s; }
+  .telao-flash, .suspense-glow, .telao-drum-label { animation: none; }
+  .reveal-pop { animation: none; opacity: 1; }
+  .pod-block { transition: none; }
+  .pod-team, .podium-rest, .podium-actions { transition: none; }
 }

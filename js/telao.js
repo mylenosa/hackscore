@@ -85,63 +85,116 @@ var Telao = (function () {
   }
 
   function renderColocado(item) {
-    Sound.revelar();
+    Sound.impacto();
     tela(catChip() +
-      '<div class="telao-place">' + item.pos + 'º</div>' +
-      '<div class="telao-name">' + esc(item.eq.nome) + '</div>' +
+      '<div class="telao-place reveal-pop">' + item.pos + 'º</div>' +
+      '<div class="telao-name reveal-pop">' + esc(item.eq.nome) + '</div>' +
       '<div class="telao-score-big">' + pontos(item) + '</div>' +
       '<button class="telao-btn telao-mt" data-next>Próximo <i class="ti ti-arrow-right" aria-hidden="true"></i></button>');
   }
 
+  /* Clímax: flash branco → impacto grave → nome com zoom-pop → fanfarra + confete */
   function renderCampeao(item) {
-    var empatados = rank.filter(function (r) { return r.pos === 1; });
-    var nomes = empatados.map(function (r) { return esc(r.eq.nome); }).join(' & ');
-    Sound.fanfarra();
-    tela('<div class="confetti-layer" id="conf-layer"></div>' +
+    Sound.impacto();
+    tela('<div class="telao-flash"></div>' +
+      '<div class="confetti-layer" id="conf-layer"></div>' +
       catChip() +
-      '<div class="telao-champion-label">' + (empatados.length > 1 ? 'Campeãs (empate)' : 'Campeão') + '</div>' +
-      '<div class="telao-trophy"><i class="ti ti-trophy" aria-hidden="true"></i></div>' +
-      '<div class="telao-name">' + nomes + '</div>' +
+      '<div class="telao-champion-label reveal-pop">Campeão</div>' +
+      '<div class="telao-trophy reveal-pop"><i class="ti ti-trophy" aria-hidden="true"></i></div>' +
+      '<div class="telao-name reveal-pop">' + esc(item.eq.nome) + '</div>' +
       '<div class="telao-score-big">' + pontos(item) + '</div>' +
       '<button class="telao-btn telao-mt" data-next>Ver classificação <i class="ti ti-list-numbers" aria-hidden="true"></i></button>');
+    setTimeout(Sound.fanfarra, 600); // a pancada ressoa sozinha antes da fanfarra
     spawnConfetti();
   }
 
-  /* Classificação final: até o 5º lugar, com destaque ao pódio (ouro/prata/bronze) */
+  /* Classificação final: pódio de 3 colunas que sobem em sequência (3º → 2º → 1º),
+     com 4º e 5º em linhas discretas abaixo */
   function renderClassificacao() {
-    var medalhas = ['gold', 'silver', 'bronze'];
-    var rows = rank.slice(0, 5).map(function (r, i) {
-      var medal = i < 3 ? medalhas[i] : '';
-      return '<div class="trr ' + medal + '">' +
-        '<div class="trr-pos ' + (medal ? 'g-' + medal : '') + '">' + r.pos + 'º</div>' +
-        '<div class="trr-name">' + esc(r.eq.nome) + '</div>' +
-        '<div class="trr-pts ' + (medal ? 'g-' + medal : '') + '">' + (r.media !== null ? r.media.toFixed(1) + ' pts' : '—') + '</div></div>';
+    var top3 = rank.slice(0, 3);
+    var resto = rank.slice(3, 5);
+
+    // ordem visual: 2º à esquerda, 1º no centro (mais alto), 3º à direita.
+    // Altura e medalha vêm da posição (item.pos) — a barra do 1º é sempre a mais alta.
+    var medalhaPorPos = { 1: 'gold', 2: 'silver', 3: 'bronze' };
+    var layout = [top3[1], top3[0], top3[2]]
+      .filter(function (item) { return item; })
+      .map(function (item) {
+        var pos = Math.min(item.pos, 3);
+        return { item: item, cls: 'pod-' + pos, medal: medalhaPorPos[pos] };
+      });
+
+    var cols = layout.map(function (l) {
+      var trofeu = l.medal === 'gold' ? '<div class="pod-trophy"><i class="ti ti-trophy" aria-hidden="true"></i></div>' : '';
+      return '<div class="pod-col ' + l.cls + '">' +
+        '<div class="pod-team">' + trofeu +
+        '<div class="pod-name">' + esc(l.item.eq.nome) + '</div>' +
+        '<div class="pod-pts g-' + l.medal + '">' + (l.item.media !== null ? l.item.media.toFixed(1) + ' pts' : '—') + '</div></div>' +
+        '<div class="pod-block"><span class="pod-pos g-' + l.medal + '">' + l.item.pos + 'º</span></div>' +
+        '</div>';
     }).join('');
+
+    var rows = resto.map(function (r) {
+      return '<div class="trr trr-sm"><div class="trr-pos">' + r.pos + 'º</div>' +
+        '<div class="trr-name">' + esc(r.eq.nome) + '</div>' +
+        '<div class="trr-pts">' + (r.media !== null ? r.media.toFixed(1) + ' pts' : '—') + '</div></div>';
+    }).join('');
+
     tela(catChip(' — classificação final') +
-      '<div class="telao-ranking">' + rows + '</div>' +
-      '<div class="btn-row"><button class="telao-btn-sec" data-voltar>Outra categoria</button></div>');
+      '<div class="podium" id="podium">' + cols + '</div>' +
+      (rows ? '<div class="podium-rest" id="podium-rest">' + rows + '</div>' : '') +
+      '<div class="btn-row podium-actions" id="podium-actions"><button class="telao-btn-sec" data-voltar>Outra categoria</button></div>');
+
+    // sobem em sequência: 3º → 2º → 1º; depois 4º/5º e o botão
+    var ordem = ['.pod-3', '.pod-2', '.pod-1'];
+    ordem.forEach(function (sel, i) {
+      var cols2 = document.querySelectorAll(sel);
+      if (cols2.length) setTimeout(function () {
+        cols2.forEach(function (col) { col.classList.add('up'); });
+        Sound.revelar();
+      }, 400 + i * 700);
+    });
+    setTimeout(function () {
+      ['podium-rest', 'podium-actions'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.add('shown');
+      });
+    }, 400 + ordem.length * 700);
   }
 
-  /* ── Suspense (barras animadas + rufar de tambores) ── */
+  /* ── Suspense de cerimônia: rolo de caixa curto em crescendo →
+     corte SECO para silêncio total (tela escura) → pancada + nome (no cb) ── */
   function runDrum(place, isWinner, cb) {
     var bars = Array.from({ length: 18 }, function () { return '<div class="drum-bar" style="height:10px"></div>'; }).join('');
-    tela('<div class="telao-suspense">' + (isWinner ? 'E o grande campeão é...' : 'Em ' + place + 'º lugar...') + '</div>' +
-      '<div class="drum-wrap">' + bars + '</div>' +
-      '<div class="telao-drum-label">🥁 rufem os tambores...</div>');
-    Sound.iniciarRufar();
-    var dur = isWinner ? 4000 : 2600, t = 0, iv = 80;
+    tela('<div class="suspense-glow"></div>' +
+      '<div class="telao-suspense">' + (isWinner ? 'E o grande campeão é...' : 'Em ' + place + 'º lugar...') + '</div>' +
+      '<div class="drum-wrap">' + bars + '</div>');
+    var dur = isWinner ? 5000 : (place === 2 ? 3000 : 2800); // rufar mais longo a cada posição
+    var silencio = isWinner ? 900 : 600;                     // pausa seca antes da pancada
+    Sound.iniciarRufar(dur);
+    var inicio = Date.now();
+    var glow = document.querySelector('.suspense-glow');
     pararDrum();
-    drumTimer = setInterval(function () {
+    (function frame() {
+      var p = Math.min((Date.now() - inicio) / dur, 1); // progresso 0→1
+      var amp = 25 + p * 70;                            // amplitude cresce
       document.querySelectorAll('.drum-bar').forEach(function (b) {
-        b.style.height = Math.round(8 + Math.random() * 92) + '%';
+        b.style.height = Math.round(8 + Math.random() * amp) + '%';
       });
-      t += iv;
-      if (t >= dur) { pararDrum(); Sound.pararRufar(); setTimeout(cb, 250); }
-    }, iv);
+      if (glow) glow.style.animationDuration = (1.2 - p * 0.85).toFixed(2) + 's'; // pulsa mais rápido
+      if (p >= 1) {
+        drumTimer = null;
+        Sound.pararRufar();
+        tela(''); // corte: tela escura e silêncio absoluto
+        drumTimer = setTimeout(function () { drumTimer = null; cb(); }, silencio);
+        return;
+      }
+      drumTimer = setTimeout(frame, Math.round(120 - p * 75)); // 120ms → 45ms
+    })();
   }
 
   function pararDrum() {
-    if (drumTimer) { clearInterval(drumTimer); drumTimer = null; }
+    if (drumTimer) { clearTimeout(drumTimer); drumTimer = null; }
   }
 
   function spawnConfetti() {
