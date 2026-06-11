@@ -169,6 +169,13 @@ var Admin = (function () {
       el.innerHTML = '<div class="empty"><i class="ti ti-chart-bar" aria-hidden="true"></i><p>Nenhuma equipe ainda.</p></div>';
       return;
     }
+
+    // preserva quais acordeões estão abertos antes de re-renderizar (polling fecha tudo sem isso)
+    var abertos = new Set();
+    el.querySelectorAll('details[data-cat]').forEach(function (d) {
+      if (d.open) abertos.add(d.dataset.cat);
+    });
+
     var total = Store.state.equipes.length;
     var comNotas = Store.state.equipes.filter(function (eq) { return Object.keys(Store.notasDe(eq.id)).length > 0; }).length;
     var html = '<div class="stats-grid">';
@@ -198,10 +205,15 @@ var Admin = (function () {
       html += '</div></div>';
     });
     el.innerHTML = html;
+
+    // restaura acordeões que estavam abertos
+    el.querySelectorAll('details[data-cat]').forEach(function (d) {
+      if (abertos.has(d.dataset.cat)) d.open = true;
+    });
   }
 
   function renderDetalhes(cat, ranked) {
-    var html = '<details class="res-details"><summary>Detalhes por critério</summary>';
+    var html = '<details class="res-details" data-cat="' + cat + '" data-group="res-det"><summary>Detalhes por critério</summary>';
     ranked.forEach(function (r) {
       html += '<div class="res-det-team">' +
         '<div class="res-det-head"><div class="res-det-name">' + esc(r.eq.nome) + '</div>' +
