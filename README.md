@@ -12,7 +12,7 @@ telao.html          página da projeção (abre em aba separada)
 css/styles.css      estilos (tokens → base → componentes → telas → telão)
 js/config.js        credenciais do Supabase, categorias e critérios do edital
 js/api.js           camada de acesso a dados — só este arquivo conhece o Supabase
-js/store.js         estado + regras de negócio (médias, ranking com empate, progresso)
+js/store.js         estado + regras de negócio (médias, ranking com desempate automático, progresso)
 js/ui.js            utilitários de interface (navegação, escape de HTML, mensagens)
 js/admin.js         telas do administrador
 js/aval.js          telas do avaliador (login, lista, formulário de notas)
@@ -50,7 +50,7 @@ Nenhuma tela fala com o banco diretamente, e a Api não conhece o DOM.
 **Telão** (`telao.html`) — escolhe a categoria e revela o **pódio**: 3º → 2º → 1º, cada um com
 suspense (tambores animados + **som** via Web Audio) e o campeão com fanfarra e confete.
 Ao final, mostra a classificação até o 5º lugar com ouro/prata/bronze.
-Há botão de mudo (canto superior). Empates dividem a posição.
+Há botão de mudo (canto superior). Nunca há empate — ver desempate automático abaixo.
 
 ## Regras de negócio
 
@@ -58,10 +58,14 @@ Há botão de mudo (canto superior). Empates dividem a posição.
 - Vencedor por categoria (não há ranking geral); pontuações 100% separadas por categoria
 - 3 categorias: *Empresa e Comunidade* e *Impacto Regional* (mesmos 7 critérios, 100 pts)
   e *Pior Experiência de Usuário* (critérios próprios, 100 pts) — ver `js/config.js`
-- **Desempate automático**: em caso de mesma média total, vence quem tiver maior média
-  no critério de maior peso; persistindo, passa ao próximo critério, e assim por diante.
-  Equipes desempatadas assim aparecem com a tag "desempate" no painel de resultados.
-  Só permanece empate se as notas forem idênticas em todos os critérios.
+- **Desempate automático (nunca há empate)** — cascata, da regra mais justa para o último recurso:
+  1. média total;
+  2. maior média no critério de maior peso, depois no seguinte, e assim por diante;
+  3. maior nota mínima entre avaliadores (a equipe que convenceu até o avaliador mais rigoroso);
+  4. menor desvio padrão dos totais (avaliação mais consistente entre os avaliadores);
+  5. ordem de cadastro da equipe (determinístico, garante posição única sempre).
+  Equipes desempatadas aparecem com a tag "desempate" no painel de resultados do admin,
+  para o professor saber explicar o critério se questionado.
 - A revelação avisa se houver equipe sem nenhuma avaliação
 
 ## Segurança

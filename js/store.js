@@ -63,10 +63,13 @@ var Store = (function () {
     return Math.round(soma / avs.length * 10) / 10;
   }
 
-  /* Ranking de uma categoria com DESEMPATE automático:
-     1º critério: média total;
-     empate → maior média no critério de maior peso, depois no seguinte, etc.;
-     só permanece empate se as notas forem idênticas em todos os critérios.
+  /* Ranking de uma categoria com DESEMPATE automático em cascata —
+     NUNCA há empate, cada equipe recebe uma posição única. Ordem de justiça:
+     1. média total;
+     2. maior média no critério de maior peso, depois no seguinte, etc.;
+     3. maior nota mínima entre avaliadores (convenceu até o avaliador mais rigoroso);
+     4. menor desvio padrão dos totais (avaliação mais consistente/consensual);
+     5. ordem de cadastro (último recurso, determinístico).
      Retorna [{eq, media, mc, pos, desempate}] da melhor para a pior. */
   function ranking(cat) {
     // ordem dos critérios para desempate: do maior para o menor peso
@@ -76,31 +79,52 @@ var Store = (function () {
       .map(function (o) { return o.i; });
 
     var lista = equipesDa(cat).map(function (eq) {
-      return { eq: eq, media: calcMedia(eq.id), mc: mediasCriterios(eq.id, cat), desempate: false };
+      var porAvaliador = notasDe(eq.id);
+      var totais = Object.keys(porAvaliador).map(function (a) { return somaNotas(porAvaliador[a]); });
+      var minTotal = null, desvio = null;
+      if (totais.length) {
+        minTotal = Math.min.apply(null, totais);
+        var m = totais.reduce(function (s, v) { return s + v; }, 0) / totais.length;
+        desvio = Math.sqrt(totais.reduce(function (s, v) { return s + (v - m) * (v - m); }, 0) / totais.length);
+      }
+      return {
+        eq: eq,
+        media: calcMedia(eq.id),
+        mc: mediasCriterios(eq.id, cat),
+        minTotal: minTotal,
+        desvio: desvio,
+        desempate: false
+      };
     });
 
     function comparar(a, b) {
       var d = (b.media || 0) - (a.media || 0);
       if (d !== 0) return d;
-      if (!a.mc || !b.mc) return 0;
-      for (var k = 0; k < ordem.length; k++) {
-        d = b.mc[ordem[k]] - a.mc[ordem[k]];
+      if (a.mc && b.mc) {
+        for (var k = 0; k < ordem.length; k++) {
+          d = b.mc[ordem[k]] - a.mc[ordem[k]];
+          if (d !== 0) return d;
+        }
+      }
+      // maior nota mínima vence (aprovada até pelo avaliador mais duro)
+      if (a.minTotal !== null && b.minTotal !== null) {
+        d = b.minTotal - a.minTotal;
+        if (d !== 0) return d;
+        // menor desvio vence (notas mais consistentes entre avaliadores)
+        d = a.desvio - b.desvio;
         if (d !== 0) return d;
       }
-      return 0;
+      // último recurso: ordem de cadastro (garante posição única sempre)
+      return String(a.eq.created_at).localeCompare(String(b.eq.created_at));
     }
 
     lista.sort(comparar);
     lista.forEach(function (item, i) {
-      if (i > 0 && item.media !== null && comparar(lista[i - 1], item) === 0) {
-        item.pos = lista[i - 1].pos; // notas idênticas em tudo: empate real
-      } else {
-        item.pos = i + 1;
-        // mesma média total mas posição diferente → desempate por critério
-        if (i > 0 && item.media !== null && item.media === lista[i - 1].media) {
-          item.desempate = true;
-          lista[i - 1].desempate = true;
-        }
+      item.pos = i + 1; // posições únicas, sem empate
+      // mesma média total que o vizinho → posição definida por desempate
+      if (i > 0 && item.media !== null && item.media === lista[i - 1].media) {
+        item.desempate = true;
+        lista[i - 1].desempate = true;
       }
     });
     return lista;
