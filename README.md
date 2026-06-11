@@ -39,12 +39,21 @@ Nenhuma tela fala com o banco diretamente, e a Api não conhece o DOM.
 
 ## Perfis de acesso (mesma URL)
 
+Na home (e na aba Resultados do admin) há a tela **"Como funciona o sistema?"** com as
+dúvidas frequentes: cálculo das médias, regras de desempate, notas travadas, categorias
+e critérios (gerados automaticamente do `config.js`) e funcionamento da revelação.
+
 **Admin (professor)** — senha definida no banco (padrão `123456`; altere na tabela
 `config` ou no `schema.sql` antes de executar)
-- Cadastra equipes por categoria; define o código de acesso da banca
+- Cadastra equipes por categoria — uma por vez ou várias com `;` (ex: `Alpha;Beta;Gama`)
+- Define o código de acesso da banca
 - Acompanha resultados em tempo real, com média por critério
 - Vê, por avaliador, o progresso **por categoria** (chip verde com ✓ quando concluiu a categoria)
-- Abre a tela de revelação em **nova aba** (o painel do admin não aparece na projeção)
+- **Copiar ranking**: gera texto formatado com medalhas e médias, pronto para colar no WhatsApp/grupos
+- **Copiar análise**: por equipe nos detalhes de critérios — breakdown individual para enviar como feedback
+- **Exporta CSV** com todas as notas (ata/backup do resultado; abre direto no Excel)
+- **Zona de perigo** (aba Avaliadores, visível só quando há equipes): reset total — apaga equipes e avaliações (exige digitar APAGAR; senha e código da banca são preservados)
+- Abre a tela de revelação em **nova aba** direto pela aba Resultados (o painel do admin não aparece na projeção)
 
 **Avaliador (banca)** — código da banca + nome
 - Avalia cada equipe pelos critérios do edital; campos de nota começam **vazios** (placeholder 0)

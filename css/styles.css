@@ -218,7 +218,9 @@ body {
 .res-details { margin-top: 4px; }
 .res-details summary { font-size: 13px; color: var(--text2); cursor: pointer; padding: 6px 0; }
 .res-det-team { margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--border); }
-.res-det-name { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+.res-det-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.res-det-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.res-det-copy { font-size: 11px; padding: 3px 8px; flex-shrink: 0; }
 .res-det-empty { font-size: 12px; color: var(--text3); }
 .res-det-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
 .res-det-crit { font-size: 12px; color: var(--text2); flex: 1; min-width: 0; line-height: 1.3; }
@@ -405,6 +407,51 @@ body {
   margin-left: 6px;
   vertical-align: middle;
 }
+
+.tie-reason { font-size: 11px; color: var(--amber-text); margin-top: 2px; line-height: 1.3; }
+
+/* ── Ajuda / Como funciona ── */
+.help-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 8px 4px;
+  min-height: 44px;
+}
+.help-link:hover { color: var(--teal); }
+.faq summary {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  padding: 2px 0;
+}
+.faq[open] summary { margin-bottom: 10px; }
+.faq p, .faq ol { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 8px; }
+.faq ol { padding-left: 20px; }
+.faq li { margin-bottom: 6px; }
+.faq strong, .faq em { color: var(--text); }
+.faq .cat-block { margin-top: 10px; }
+.faq .cb { padding-top: 8px; }
+.faq-footer { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--text2); line-height: 1.5; }
+.faq-footer i { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── Zona de perigo (reset total) ── */
+.danger-zone { border-color: var(--danger); margin-top: 20px; }
+.dz-title { color: var(--danger); display: flex; align-items: center; gap: 6px; }
+.danger-zone .confirm-box { margin-top: 12px; margin-bottom: 0; }
+.danger-zone .input-row { flex-wrap: wrap; }
+.danger-zone .input-row input { min-width: 120px; }
+
+/* ── Ações da aba Resultados ── */
+.res-actions { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 
 /* ── Chips de progresso por categoria (admin → avaliadores) ── */
 .cat-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }

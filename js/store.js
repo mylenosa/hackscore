@@ -118,6 +118,22 @@ var Store = (function () {
       return String(a.eq.created_at).localeCompare(String(b.eq.created_at));
     }
 
+    /* Qual regra da cascata separou duas equipes de mesma média total */
+    function motivoDesempate(a, b) {
+      if (a.mc && b.mc) {
+        for (var k = 0; k < ordem.length; k++) {
+          if (a.mc[ordem[k]] !== b.mc[ordem[k]]) {
+            return 'maior média no critério "' + CATS[cat].crit[ordem[k]].n + '"';
+          }
+        }
+      }
+      if (a.minTotal !== null && b.minTotal !== null) {
+        if (a.minTotal !== b.minTotal) return 'maior nota mínima entre os avaliadores';
+        if (a.desvio !== b.desvio) return 'notas mais consistentes (menor desvio entre avaliadores)';
+      }
+      return 'ordem de cadastro da equipe';
+    }
+
     lista.sort(comparar);
     lista.forEach(function (item, i) {
       item.pos = i + 1; // posições únicas, sem empate
@@ -125,6 +141,8 @@ var Store = (function () {
       if (i > 0 && item.media !== null && item.media === lista[i - 1].media) {
         item.desempate = true;
         lista[i - 1].desempate = true;
+        item.motivoDesempate = motivoDesempate(lista[i - 1], item);
+        if (!lista[i - 1].motivoDesempate) lista[i - 1].motivoDesempate = item.motivoDesempate;
       }
     });
     return lista;

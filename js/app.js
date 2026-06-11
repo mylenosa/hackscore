@@ -22,7 +22,25 @@
     }, CONFIG.POLL_MS);
   }
 
+  /* Tela de ajuda: lista de categorias e critérios gerada a partir do
+     config.js — sempre em sincronia com o que a banca realmente usa */
+  function renderAjudaCriterios() {
+    var el = document.getElementById('ajuda-cats');
+    if (!el) return;
+    var html = '';
+    CAT_KEYS.forEach(function (cat) {
+      html += '<div class="cat-block">' + UI.catHeader(cat) + '<div class="cb">';
+      CATS[cat].crit.forEach(function (c) {
+        html += '<div class="res-det-row"><span class="res-det-crit">' + UI.esc(c.n) + '</span>' +
+          '<span class="res-det-val">' + c.max + ' pts</span></div>';
+      });
+      html += '</div></div>';
+    });
+    el.innerHTML = html;
+  }
+
   async function init() {
+    renderAjudaCriterios();
     if (!configurado()) {
       document.body.innerHTML = '<div class="empty" style="padding-top:80px"><i class="ti ti-database-x" aria-hidden="true"></i>' +
         '<p><strong>Supabase não configurado.</strong><br>Preencha SUPABASE_URL e SUPABASE_ANON_KEY em js/config.js<br>e execute supabase/schema.sql no painel do Supabase.</p></div>';
