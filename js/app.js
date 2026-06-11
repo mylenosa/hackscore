@@ -39,6 +39,18 @@
     el.innerHTML = html;
   }
 
+  /* Accordion: clicou num <summary> dentro de um <details data-group="X">
+     que estava fechado → fecha os irmãos do mesmo grupo antes de abrir */
+  document.addEventListener('click', function (e) {
+    var summary = e.target.closest('summary');
+    if (!summary) return;
+    var details = summary.parentElement;
+    if (!details || !details.dataset.group || details.open) return;
+    document.querySelectorAll('details[data-group="' + details.dataset.group + '"]').forEach(function (other) {
+      if (other !== details) other.open = false;
+    });
+  });
+
   async function init() {
     renderAjudaCriterios();
     if (!configurado()) {

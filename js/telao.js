@@ -13,12 +13,38 @@ var Telao = (function () {
   function body() { return document.getElementById('telao-body'); }
 
   function tela(conteudo) {
-    body().innerHTML = '<div class="telao">' + botaoMudo() + conteudo + '</div>';
+    body().innerHTML = '<div class="telao">' + toolbar() + conteudo + '</div>';
   }
 
-  function botaoMudo() {
-    var icon = Sound.estaMudo() ? 'ti-volume-off' : 'ti-volume';
-    return '<button class="telao-mute" data-mudo aria-label="Ativar ou desativar som"><i class="ti ' + icon + '" aria-hidden="true"></i></button>';
+  function toolbar() {
+    var somIcon = Sound.estaMudo() ? 'ti-volume-off' : 'ti-volume';
+    var fsIcon = document.fullscreenElement ? 'ti-minimize' : 'ti-maximize';
+    return '<div class="telao-tools">' +
+      '<button class="telao-tool" data-shot aria-label="Salvar imagem da tela"><i class="ti ti-camera" aria-hidden="true"></i></button>' +
+      '<button class="telao-tool" data-fs aria-label="Alternar tela cheia"><i class="ti ' + fsIcon + '" aria-hidden="true"></i></button>' +
+      '<button class="telao-tool" data-mudo aria-label="Ativar ou desativar som"><i class="ti ' + somIcon + '" aria-hidden="true"></i></button>' +
+      '</div>';
+  }
+
+  function alternarTelaCheia() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+  }
+
+  /* Baixa um PNG da tela atual (html2canvas via CDN, carregado no telao.html) */
+  function capturarTela(btn) {
+    if (typeof html2canvas !== 'function') { alert('Captura indisponível (sem internet?).'); return; }
+    var tools = document.querySelector('.telao-tools');
+    if (tools) tools.style.visibility = 'hidden'; // botões fora da foto
+    html2canvas(document.body, { backgroundColor: '#0D1117' }).then(function (canvas) {
+      if (tools) tools.style.visibility = '';
+      var a = document.createElement('a');
+      a.download = 'hackscore-telao-' + (cat ? cat + '-' : '') + Date.now() + '.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    }).catch(function () {
+      if (tools) tools.style.visibility = '';
+    });
   }
 
   function catChip(extra) {
@@ -37,7 +63,7 @@ var Telao = (function () {
     var opcoes = CAT_KEYS.map(function (k) {
       return '<button class="telao-btn telao-pick" data-cat="' + k + '">' + CATS[k].full + '</button>';
     }).join('');
-    body().innerHTML = '<div class="telao">' + botaoMudo() +
+    body().innerHTML = '<div class="telao">' + toolbar() +
       '<div class="telao-name telao-title">Revelação</div>' +
       '<div class="telao-pts">Escolha a categoria para revelar</div>' +
       '<div class="telao-pick-wrap">' + opcoes + '</div></div>';
@@ -145,15 +171,23 @@ var Telao = (function () {
       (rows ? '<div class="podium-rest" id="podium-rest">' + rows + '</div>' : '') +
       '<div class="btn-row podium-actions" id="podium-actions"><button class="telao-btn-sec" data-voltar>Outra categoria</button></div>');
 
-    // sobem em sequência: 3º → 2º → 1º; depois 4º/5º e o botão
-    var ordem = ['.pod-3', '.pod-2', '.pod-1'];
-    ordem.forEach(function (sel, i) {
-      var cols2 = document.querySelectorAll(sel);
-      if (cols2.length) setTimeout(function () {
-        cols2.forEach(function (col) { col.classList.add('up'); });
+    // alturas em px calculadas do container real — sem depender de % em flexbox
+    var ratios = { 1: 0.62, 2: 0.44, 3: 0.32 };
+    var podiumEl = document.getElementById('podium');
+    var baseH = podiumEl ? podiumEl.offsetHeight : 400;
+
+    // sobem em sequência: 3º → 2º → 1º (altura aplicada direto no style); depois 4º/5º e o botão
+    [3, 2, 1].forEach(function (pos, i) {
+      var col = document.querySelector('.pod-' + pos);
+      if (!col) return;
+      var block = col.querySelector('.pod-block');
+      setTimeout(function () {
+        col.classList.add('up');
+        block.style.height = Math.round(baseH * ratios[pos]) + 'px';
         Sound.revelar();
       }, 400 + i * 700);
     });
+    var ordem = [3, 2, 1]; // para o timing do bloco final abaixo
     setTimeout(function () {
       ['podium-rest', 'podium-actions'].forEach(function (id) {
         var el = document.getElementById(id);
@@ -224,6 +258,9 @@ var Telao = (function () {
         mudo.querySelector('i').className = 'ti ' + (off ? 'ti-volume-off' : 'ti-volume');
         return;
       }
+      var fs = ev.target.closest('[data-fs]');
+      if (fs) { alternarTelaCheia(); return; }
+      if (ev.target.closest('[data-shot]')) { capturarTela(); return; }
       if (pick) { escolherCategoria(pick.dataset.cat); return; }
       if (ev.target.closest('[data-next]')) { avancar(); return; }
       if (ev.target.closest('[data-voltar]')) { renderPicker(); return; }
@@ -237,6 +274,10 @@ var Telao = (function () {
       return;
     }
     bind();
+    document.addEventListener('fullscreenchange', function () {
+      var b = document.querySelector('[data-fs] i');
+      if (b) b.className = 'ti ' + (document.fullscreenElement ? 'ti-minimize' : 'ti-maximize');
+    });
     renderPicker();
   }
 

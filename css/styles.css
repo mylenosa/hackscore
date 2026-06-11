@@ -470,11 +470,17 @@ body {
 /* ── Telão: seletor de categoria, botão de mudo, medalhas ── */
 .telao-pick-wrap { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 520px; margin-top: clamp(16px, 3vw, 32px); }
 .telao-pick { width: 100%; justify-content: center; }
-.telao-mute {
+.telao-tools {
   position: absolute;
   top: clamp(16px, 3vw, 32px);
   right: clamp(16px, 3vw, 32px);
   z-index: 3;
+  display: flex;
+  gap: 8px;
+}
+.telao-tool {
+  flex: 0 0 auto;
+  padding: 0;
   width: clamp(40px, 5vw, 56px);
   height: clamp(40px, 5vw, 56px);
   border-radius: 50%;
@@ -488,7 +494,7 @@ body {
   justify-content: center;
   transition: background 0.15s;
 }
-.telao-mute:hover { background: rgba(255,255,255,0.16); }
+.telao-tool:hover { background: rgba(255,255,255,0.16); }
 
 .trr.silver { background: #1C1F24; border-color: #6E7681; }
 .trr.bronze { background: #241A12; border-color: #8A5A2B; }
@@ -570,9 +576,7 @@ body {
 .pod-1 .pod-block { background: #2A1F05; border: 0.5px solid #854F0B; border-bottom: none; }
 .pod-2 .pod-block { background: #1C1F24; border: 0.5px solid #6E7681; border-bottom: none; }
 .pod-3 .pod-block { background: #241A12; border: 0.5px solid #8A5A2B; border-bottom: none; }
-.pod-1.up .pod-block { height: 62%; }
-.pod-2.up .pod-block { height: 44%; }
-.pod-3.up .pod-block { height: 32%; }
+/* altura final do bloco é aplicada via style.height pelo telao.js (px reais) */
 
 .podium-rest, .podium-actions { opacity: 0; transition: opacity 0.5s; }
 .podium-rest.shown, .podium-actions.shown { opacity: 1; }
