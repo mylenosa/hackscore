@@ -26,9 +26,9 @@ var Aval = (function () {
 
   async function login(btn) {
     var cod = document.getElementById('av-cod').value.trim().toUpperCase();
-    var nome = document.getElementById('av-nome').value.trim();
+    var nome = document.getElementById('av-nome').value.trim().toUpperCase();
     if (!cod) { UI.showErr('av-err', 'Informe o código da banca.'); return; }
-    if (!nome) { UI.showErr('av-err', 'Informe seu nome completo.'); return; }
+    if (!nome) { UI.showErr('av-err', 'Informe seu nome.'); return; }
     await UI.busy(btn, async function () {
       var valido;
       try {
@@ -47,7 +47,20 @@ var Aval = (function () {
     });
   }
 
-  function logout() {
+  async function logout() {
+    var p = Store.progressoDe(Store.state.avalNome);
+    if (p.total > 0 && p.done < p.total) {
+      var faltam = p.total - p.done;
+      var ok = await UI.modal({
+        title: 'Avaliações pendentes',
+        msg: 'Você ainda tem <strong>' + faltam + ' equipe(s)</strong> para avaliar. ' +
+             'Se sair agora, poderá voltar depois com o mesmo código e nome.',
+        confirm: 'Sair mesmo assim',
+        cancel: 'Continuar avaliando',
+        danger: true
+      });
+      if (!ok) return;
+    }
     Store.setAvalSessao('', '');
     UI.goTo('s-home');
   }
