@@ -11,9 +11,16 @@ var Aval = (function () {
   function desativarGuarda() { window.removeEventListener('beforeunload', onBeforeUnload); }
 
   function formSujo() {
-    return Array.from(document.querySelectorAll('#fm-crit input')).some(function (inp) {
+    var temNota = Array.from(document.querySelectorAll('#fm-crit input')).some(function (inp) {
       return parseInt(inp.value, 10) > 0;
     });
+    var obs = document.getElementById('fm-obs');
+    return temNota || (obs && obs.value.trim().length > 0);
+  }
+
+  function lerObs() {
+    var el = document.getElementById('fm-obs');
+    return el ? el.value.trim() || null : null;
   }
 
   async function login(btn) {
@@ -109,18 +116,33 @@ var Aval = (function () {
     var rascunho = JSON.parse(sessionStorage.getItem('rascunho-' + eqId) || 'null');
     var html = '';
     CATS[cat].crit.forEach(function (c, i) {
-      html += '<div class="card crit-row"><div class="crit-name">' + c.n + '</div><div class="crit-inp-row">' +
+      html += '<div class="card crit-row"><div class="crit-name">' + esc(c.n) + '</div><div class="crit-inp-row">' +
         '<input type="number" id="ci-' + i + '" min="0" max="' + c.max + '" step="1" inputmode="numeric" placeholder="0" aria-label="' + esc(c.n) + '">' +
         '<span class="crit-max">/ ' + c.max + ' pts</span><div class="crit-bar"><div class="crit-bar-fill" id="cb-' + i + '" style="width:0%"></div></div>' +
         '</div></div>';
     });
+    html += '<div class="card crit-row">' +
+      '<div class="crit-name">Observações <span class="obs-optional">(opcional)</span></div>' +
+      '<textarea id="fm-obs" class="fm-obs" maxlength="300" placeholder="Pontos fortes, sugestões de melhoria..."></textarea>' +
+      '<div class="obs-counter"><span id="fm-obs-count">0</span>/300</div>' +
+      '</div>';
     document.getElementById('fm-crit').innerHTML = html;
     if (rascunho) {
-      rascunho.forEach(function (v, i) {
+      (Array.isArray(rascunho) ? rascunho : rascunho.notas || []).forEach(function (v, i) {
         var inp = document.getElementById('ci-' + i);
         if (inp) inp.value = v || '';
       });
+      var obsVal = Array.isArray(rascunho) ? null : (rascunho.obs || null);
+      var obsEl = document.getElementById('fm-obs');
+      if (obsEl && obsVal) {
+        obsEl.value = obsVal;
+        document.getElementById('fm-obs-count').textContent = obsVal.length;
+      }
     }
+    document.getElementById('fm-obs').addEventListener('input', function () {
+      document.getElementById('fm-obs-count').textContent = this.value.length;
+      if (fmEqId) sessionStorage.setItem('rascunho-' + fmEqId, JSON.stringify({ notas: lerNotas(), obs: lerObs() }));
+    });
     document.getElementById('fm-crit').oninput = atualizarTotal;
     atualizarTotal();
     ativarGuarda();
@@ -146,7 +168,7 @@ var Aval = (function () {
     });
     document.getElementById('fm-total').textContent = tot + ' pts';
     document.getElementById('fm-pbar').style.width = tot + '%';
-    if (fmEqId) sessionStorage.setItem('rascunho-' + fmEqId, JSON.stringify(lerNotas()));
+    if (fmEqId) sessionStorage.setItem('rascunho-' + fmEqId, JSON.stringify({ notas: lerNotas(), obs: lerObs() }));
   }
 
   async function voltarLista() {
@@ -178,7 +200,7 @@ var Aval = (function () {
     await UI.busy(btn, async function () {
       var status;
       try {
-        status = await Api.enviarAvaliacao(Store.state.avalCod, fmEqId, Store.state.avalNome, lerNotas());
+        status = await Api.enviarAvaliacao(Store.state.avalCod, fmEqId, Store.state.avalNome, lerNotas(), lerObs());
       } catch (e) {
         await UI.modal({ title: 'Erro ao enviar', msg: UI.esc(e.message) + '<br>Verifique a conexão e tente novamente.', confirm: 'OK', cancel: false });
         return;

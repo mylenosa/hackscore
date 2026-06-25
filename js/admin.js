@@ -252,8 +252,17 @@ var Admin = (function () {
         html += '<div class="res-det-empty">Sem avaliações.</div>';
       } else {
         CATS[cat].crit.forEach(function (c, i) {
-          html += '<div class="res-det-row"><span class="res-det-crit">' + c.n + '</span><span class="res-det-val">' + r.mc[i].toFixed(1) + '/' + c.max + '</span></div>';
+          html += '<div class="res-det-row"><span class="res-det-crit">' + esc(c.n) + '</span><span class="res-det-val">' + r.mc[i].toFixed(1) + '/' + c.max + '</span></div>';
         });
+        var obs = Store.obsDe(r.eq.id);
+        var obsAvs = Object.keys(obs).filter(function (av) { return obs[av]; });
+        if (obsAvs.length) {
+          html += '<div class="res-det-obs"><div class="res-det-obs-label">Observações</div>';
+          obsAvs.forEach(function (av) {
+            html += '<div class="res-det-obs-item"><strong>' + esc(av) + ':</strong> ' + esc(obs[av]) + '</div>';
+          });
+          html += '</div>';
+        }
       }
       html += '</div>';
     });
@@ -280,6 +289,13 @@ var Admin = (function () {
     if (r.desempate && r.motivoDesempate) {
       linhas.push('');
       linhas.push('ℹ️ Posição decidida por desempate: ' + r.motivoDesempate);
+    }
+    var obs = Store.obsDe(eqId);
+    var obsAvs = Object.keys(obs).filter(function (av) { return obs[av]; });
+    if (obsAvs.length) {
+      linhas.push('');
+      linhas.push('📝 Observações:');
+      obsAvs.forEach(function (av) { linhas.push('• ' + av + ': ' + obs[av]); });
     }
     linhas.push('');
     linhas.push('🏫 Hackathon Extensionista IFRO Ariquemes 2026/1');
@@ -341,14 +357,15 @@ var Admin = (function () {
   function exportCsv() {
     var linhas = [['Categoria', 'Posição', 'Equipe', 'Avaliador',
       'Critério 1', 'Critério 2', 'Critério 3', 'Critério 4', 'Critério 5', 'Critério 6', 'Critério 7',
-      'Total do avaliador', 'Média da equipe']];
+      'Total do avaliador', 'Média da equipe', 'Observação']];
     CAT_KEYS.forEach(function (cat) {
       Store.ranking(cat).forEach(function (r) {
         var notas = Store.notasDe(r.eq.id);
+        var obs = Store.obsDe(r.eq.id);
         var avs = Object.keys(notas).sort();
         var media = r.media !== null ? String(r.media).replace('.', ',') : '';
         if (!avs.length) {
-          linhas.push([CATS[cat].full, r.pos + 'º', r.eq.nome, '(sem avaliações)', '', '', '', '', '', '', '', '', media]);
+          linhas.push([CATS[cat].full, r.pos + 'º', r.eq.nome, '(sem avaliações)', '', '', '', '', '', '', '', '', media, '']);
           return;
         }
         avs.forEach(function (a) {
@@ -357,6 +374,7 @@ var Admin = (function () {
           for (var i = 0; i < 7; i++) row.push(ns[i] != null ? ns[i] : '');
           row.push(Store.somaNotas(ns));
           row.push(media);
+          row.push(obs[a] || '');
           linhas.push(row);
         });
       });

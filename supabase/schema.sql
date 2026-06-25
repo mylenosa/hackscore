@@ -33,6 +33,7 @@ create table if not exists public.avaliacoes (
   equipe_id  uuid not null references public.equipes (id) on delete cascade,
   avaliador  text not null,
   notas      jsonb not null,
+  obs        text,
   created_at timestamptz not null default now(),
   unique (equipe_id, avaliador)   -- um avaliador avalia cada equipe UMA vez
 );
@@ -158,7 +159,7 @@ end $$;
 -- Retorna: 'ok' | 'duplicada' | 'codigo_invalido'
 
 create or replace function public.enviar_avaliacao(
-  p_code text, p_equipe uuid, p_avaliador text, p_notas jsonb
+  p_code text, p_equipe uuid, p_avaliador text, p_notas jsonb, p_obs text default null
 ) returns text
 language plpgsql security definer set search_path = public as $$
 begin
@@ -166,8 +167,8 @@ begin
     return 'codigo_invalido';
   end if;
   begin
-    insert into public.avaliacoes (equipe_id, avaliador, notas)
-    values (p_equipe, trim(p_avaliador), p_notas);
+    insert into public.avaliacoes (equipe_id, avaliador, notas, obs)
+    values (p_equipe, trim(p_avaliador), p_notas, nullif(trim(p_obs), ''));
   exception when unique_violation then
     return 'duplicada';
   end;

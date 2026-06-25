@@ -82,8 +82,8 @@ var Api = (function () {
 
     /* ── envio de avaliação (exige o código da banca) ──
        Retorna 'ok' | 'duplicada' | 'codigo_invalido'. */
-    enviarAvaliacao: function (code, equipeId, avaliador, notas) {
-      return rpc('enviar_avaliacao', { p_code: code, p_equipe: equipeId, p_avaliador: avaliador, p_notas: notas }, 'Erro ao enviar avaliação');
+    enviarAvaliacao: function (code, equipeId, avaliador, notas, obs) {
+      return rpc('enviar_avaliacao', { p_code: code, p_equipe: equipeId, p_avaliador: avaliador, p_notas: notas, p_obs: obs || null }, 'Erro ao enviar avaliação');
     }
   };
 })();

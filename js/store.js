@@ -30,6 +30,15 @@ var Store = (function () {
     return out;
   }
 
+  /* Mapa { avaliador: obs } de uma equipe (null se não houver observação) */
+  function obsDe(equipeId) {
+    var out = {};
+    state.avaliacoes.forEach(function (a) {
+      if (a.equipe_id === equipeId) out[a.avaliador] = a.obs || null;
+    });
+    return out;
+  }
+
   function avaliadores() {
     var nomes = [];
     state.avaliacoes.forEach(function (a) {
@@ -186,6 +195,7 @@ var Store = (function () {
     sync: sync,
     equipesDa: equipesDa,
     notasDe: notasDe,
+    obsDe: obsDe,
     avaliadores: avaliadores,
     somaNotas: somaNotas,
     calcMedia: calcMedia,
