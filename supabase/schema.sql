@@ -133,7 +133,7 @@ create or replace function public.admin_remove_avaliador(p_pwd text, p_nome text
 language plpgsql security definer set search_path = public as $$
 begin
   perform public._exigir_admin(p_pwd);
-  delete from public.avaliacoes where avaliador = p_nome;
+  delete from public.avaliacoes where avaliador = upper(trim(p_nome));
 end $$;
 
 -- Cadastro em lote: insere várias equipes de uma vez na mesma categoria
@@ -168,7 +168,7 @@ begin
   end if;
   begin
     insert into public.avaliacoes (equipe_id, avaliador, notas, obs)
-    values (p_equipe, trim(p_avaliador), p_notas, nullif(trim(p_obs), ''));
+    values (p_equipe, upper(trim(p_avaliador)), p_notas, nullif(trim(p_obs), ''));
   exception when unique_violation then
     return 'duplicada';
   end;
