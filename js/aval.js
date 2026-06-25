@@ -5,6 +5,17 @@ var Aval = (function () {
   var esc = UI.esc;
   var fmEqId = null, fmCat = null;
 
+  function onBeforeUnload(e) { e.preventDefault(); e.returnValue = ''; }
+
+  function ativarGuarda() { window.addEventListener('beforeunload', onBeforeUnload); }
+  function desativarGuarda() { window.removeEventListener('beforeunload', onBeforeUnload); }
+
+  function formSujo() {
+    return Array.from(document.querySelectorAll('#fm-crit input')).some(function (inp) {
+      return parseInt(inp.value, 10) > 0;
+    });
+  }
+
   async function login(btn) {
     var cod = document.getElementById('av-cod').value.trim().toUpperCase();
     var nome = document.getElementById('av-nome').value.trim();
@@ -95,6 +106,7 @@ var Aval = (function () {
     document.getElementById('fm-cat').textContent = CATS[cat].full;
     ['fm-confirm', 'fm-sent'].forEach(function (id) { document.getElementById(id).style.display = 'none'; });
     document.getElementById('fm-btnwrap').style.display = 'block';
+    var rascunho = JSON.parse(sessionStorage.getItem('rascunho-' + eqId) || 'null');
     var html = '';
     CATS[cat].crit.forEach(function (c, i) {
       html += '<div class="card crit-row"><div class="crit-name">' + c.n + '</div><div class="crit-inp-row">' +
@@ -103,8 +115,15 @@ var Aval = (function () {
         '</div></div>';
     });
     document.getElementById('fm-crit').innerHTML = html;
+    if (rascunho) {
+      rascunho.forEach(function (v, i) {
+        var inp = document.getElementById('ci-' + i);
+        if (inp) inp.value = v || '';
+      });
+    }
     document.getElementById('fm-crit').oninput = atualizarTotal;
     atualizarTotal();
+    ativarGuarda();
     UI.goTo('s-form');
   }
 
@@ -127,9 +146,14 @@ var Aval = (function () {
     });
     document.getElementById('fm-total').textContent = tot + ' pts';
     document.getElementById('fm-pbar').style.width = tot + '%';
+    if (fmEqId) sessionStorage.setItem('rascunho-' + fmEqId, JSON.stringify(lerNotas()));
   }
 
   function voltarLista() {
+    if (UI.activeScreen() === 's-form' && formSujo() &&
+        !confirm('Sair agora descarta as notas não enviadas. Continuar?')) return;
+    desativarGuarda();
+    sessionStorage.removeItem('rascunho-' + fmEqId);
     UI.goTo('s-aval');
     renderPainel();
   }
@@ -158,6 +182,8 @@ var Aval = (function () {
         logout();
         return;
       }
+      sessionStorage.removeItem('rascunho-' + fmEqId);
+      desativarGuarda();
       document.getElementById('fm-confirm').style.display = 'none';
       var sent = document.getElementById('fm-sent');
       sent.style.display = 'flex';

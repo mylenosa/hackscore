@@ -114,6 +114,13 @@ begin
   insert into public.equipes (nome, cat) values (trim(p_nome), p_cat);
 end $$;
 
+create or replace function public.admin_rename_equipe(p_pwd text, p_id uuid, p_nome text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  perform public._exigir_admin(p_pwd);
+  update public.equipes set nome = trim(p_nome) where id = p_id;
+end $$;
+
 create or replace function public.admin_remove_equipe(p_pwd text, p_id uuid) returns void
 language plpgsql security definer set search_path = public as $$
 begin

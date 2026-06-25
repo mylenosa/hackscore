@@ -94,6 +94,20 @@ var Admin = (function () {
     renderEquipes();
   }
 
+  async function renameEquipe(id, nomeAtual) {
+    var novo = prompt('Novo nome para "' + nomeAtual + '":', nomeAtual);
+    if (!novo || novo.trim() === nomeAtual) return;
+    novo = novo.trim();
+    if (!novo) return;
+    try {
+      await Api.renameEquipe(pwd, id, novo);
+      await Store.sync();
+      renderEquipes();
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
   function renderEquipes() {
     var el = document.getElementById('lista-eq');
     if (!Store.state.equipes.length) {
@@ -110,7 +124,10 @@ var Admin = (function () {
         var nAvs = Object.keys(Store.notasDe(eq.id)).length;
         html += '<div class="trow"><div><div class="trow-name">' + esc(eq.nome) + '</div>';
         if (nAvs) html += '<div class="trow-note"><i class="ti ti-check" aria-hidden="true"></i> ' + nAvs + ' avaliação(ões)</div>';
-        html += '</div><button class="btn btn-sm btn-danger" data-remove-eq="' + eq.id + '" data-nome="' + esc(eq.nome) + '" aria-label="Remover equipe ' + esc(eq.nome) + '"><i class="ti ti-trash" aria-hidden="true"></i></button></div>';
+        html += '</div><div class="trow-actions">' +
+          '<button class="btn btn-sm" data-rename-eq="' + eq.id + '" data-nome="' + esc(eq.nome) + '" aria-label="Renomear equipe ' + esc(eq.nome) + '"><i class="ti ti-pencil" aria-hidden="true"></i></button>' +
+          '<button class="btn btn-sm btn-danger" data-remove-eq="' + eq.id + '" data-nome="' + esc(eq.nome) + '" aria-label="Remover equipe ' + esc(eq.nome) + '"><i class="ti ti-trash" aria-hidden="true"></i></button>' +
+          '</div></div>';
       });
       html += '</div></div>';
     });
@@ -276,6 +293,8 @@ var Admin = (function () {
   function fecharReset() {
     document.getElementById('dz-confirm').style.display = 'none';
     document.getElementById('dz-open').style.display = 'inline-flex';
+    var det = document.getElementById('dz-details');
+    if (det) det.open = false;
   }
 
   function checarReset() {
@@ -366,8 +385,10 @@ var Admin = (function () {
      evitando concatenar nomes digitados dentro de atributos onclick. */
   function bindListas() {
     document.getElementById('lista-eq').addEventListener('click', function (ev) {
-      var btn = ev.target.closest('[data-remove-eq]');
-      if (btn) removeEquipe(btn.dataset.removeEq, btn.dataset.nome);
+      var rem = ev.target.closest('[data-remove-eq]');
+      if (rem) { removeEquipe(rem.dataset.removeEq, rem.dataset.nome); return; }
+      var ren = ev.target.closest('[data-rename-eq]');
+      if (ren) renameEquipe(ren.dataset.renameEq, ren.dataset.nome);
     });
     document.getElementById('lista-av').addEventListener('click', function (ev) {
       var btn = ev.target.closest('[data-remove-av]');

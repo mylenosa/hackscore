@@ -72,6 +72,10 @@ var Api = (function () {
       return rpc('admin_remove_equipe', { p_pwd: pwd, p_id: id }, 'Erro ao remover equipe');
     },
 
+    renameEquipe: function (pwd, id, nome) {
+      return rpc('admin_rename_equipe', { p_pwd: pwd, p_id: id, p_nome: nome }, 'Erro ao renomear equipe');
+    },
+
     removeAvaliador: function (pwd, nome) {
       return rpc('admin_remove_avaliador', { p_pwd: pwd, p_nome: nome }, 'Erro ao remover avaliador');
     },

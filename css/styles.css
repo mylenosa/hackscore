@@ -206,6 +206,7 @@ body {
 .trow-sub { font-size: 12px; color: var(--text2); margin-top: 3px; }
 .trow-grow { flex: 1; min-width: 0; }
 .trow-action { margin-left: 10px; flex-shrink: 0; }
+.trow-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 10px; }
 
 /* ── Resultados ── */
 .res-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
@@ -445,7 +446,10 @@ body {
 
 /* ── Zona de perigo (reset total) ── */
 .danger-zone { border-color: var(--danger); margin-top: 20px; }
-.dz-title { color: var(--danger); display: flex; align-items: center; gap: 6px; }
+.danger-zone > summary { list-style: none; cursor: pointer; }
+.danger-zone > summary::-webkit-details-marker { display: none; }
+.dz-title { color: var(--danger); display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; }
+.danger-zone .btn-danger { margin-top: 12px; }
 .danger-zone .confirm-box { margin-top: 12px; margin-bottom: 0; }
 .danger-zone .input-row { flex-wrap: wrap; }
 .danger-zone .input-row input { min-width: 120px; }

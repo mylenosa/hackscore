@@ -180,9 +180,9 @@
       <div id="lista-av"></div>
     </div>
 
-    <div class="card danger-zone" style="display:none">
-      <div class="card-title dz-title"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Zona de perigo</div>
-      <div class="card-hint">Apaga <strong>todas</strong> as equipes e avaliações. A senha do admin e o código da banca são mantidos.
+    <details class="card danger-zone" style="display:none" id="dz-details">
+      <summary class="dz-title"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Zona de perigo</summary>
+      <div class="card-hint" style="margin-top:10px">Apaga <strong>todas</strong> as equipes e avaliações. A senha do admin e o código da banca são mantidos.
         Esta ação não pode ser desfeita — se precisar do registro, exporte o CSV na aba Resultados antes.</div>
       <button id="dz-open" class="btn btn-danger" onclick="Admin.abrirReset()"><i class="ti ti-trash" aria-hidden="true"></i> Apagar tudo</button>
       <div id="dz-confirm" class="confirm-box" style="display:none">
@@ -195,7 +195,7 @@
         </div>
       </div>
       <div id="dz-ok" class="toast-ok" style="display:none;margin-top:8px"><i class="ti ti-check" aria-hidden="true"></i> Sistema zerado com sucesso.</div>
-    </div>
+    </details>
   </div>
 
   <div id="tp-res" class="tp">
@@ -222,11 +222,11 @@
     <div class="page-sub">Use o código fornecido pelo professor.</div>
     <div class="field">
       <label for="av-cod">Código da banca</label>
-      <input type="text" id="av-cod" class="input-uppercase" placeholder="Ex: BANCA2026" autocomplete="off">
+      <input type="text" id="av-cod" class="input-uppercase" autocomplete="off">
     </div>
     <div class="field">
       <label for="av-nome">Seu nome completo</label>
-      <input type="text" id="av-nome" placeholder="Ex: Prof. João Silva" autocomplete="name" onkeydown="if(event.key==='Enter')Aval.login()">
+      <input type="text" id="av-nome" autocomplete="name" onkeydown="if(event.key==='Enter')Aval.login()">
     </div>
     <div id="av-err" class="err-msg" style="display:none" role="alert" aria-live="polite"><i class="ti ti-alert-circle" aria-hidden="true"></i><span></span></div>
     <div class="gap-12"></div>
