@@ -3,7 +3,7 @@
 
 var Aval = (function () {
   var esc = UI.esc;
-  var fmEqId = null, fmCat = null;
+  var fmEqId = null, fmCat = null, fmEnviado = false;
 
   function onBeforeUnload(e) { e.preventDefault(); e.returnValue = ''; }
 
@@ -11,6 +11,7 @@ var Aval = (function () {
   function desativarGuarda() { window.removeEventListener('beforeunload', onBeforeUnload); }
 
   function formSujo() {
+    if (fmEnviado) return false;
     var temNota = Array.from(document.querySelectorAll('#fm-crit input')).some(function (inp) {
       return parseFloat(inp.value) > 0;
     });
@@ -108,6 +109,7 @@ var Aval = (function () {
   function abrirForm(eqId, cat) {
     fmEqId = eqId;
     fmCat = cat;
+    fmEnviado = false;
     var eq = Store.state.equipes.find(function (e) { return e.id === eqId; });
     document.getElementById('fm-team').textContent = eq.nome;
     document.getElementById('fm-cat').textContent = CATS[cat].full;
@@ -211,6 +213,7 @@ var Aval = (function () {
         return;
       }
       sessionStorage.removeItem('rascunho-' + fmEqId);
+      fmEnviado = true;
       desativarGuarda();
       document.getElementById('fm-confirm').style.display = 'none';
       var sent = document.getElementById('fm-sent');
