@@ -12,7 +12,7 @@ var Aval = (function () {
 
   function formSujo() {
     var temNota = Array.from(document.querySelectorAll('#fm-crit input')).some(function (inp) {
-      return parseInt(inp.value, 10) > 0;
+      return parseFloat(inp.value) > 0;
     });
     var obs = document.getElementById('fm-obs');
     return temNota || (obs && obs.value.trim().length > 0);
@@ -117,9 +117,9 @@ var Aval = (function () {
     var html = '';
     CATS[cat].crit.forEach(function (c, i) {
       html += '<div class="card crit-row"><div class="crit-name">' + esc(c.n) + '</div><div class="crit-inp-row">' +
-        '<input type="number" id="ci-' + i + '" min="0" max="' + c.max + '" step="1" inputmode="numeric" placeholder="0" aria-label="' + esc(c.n) + '">' +
+        '<input type="number" id="ci-' + i + '" min="0" max="' + c.max + '" step="0.1" inputmode="decimal" placeholder="0" aria-label="' + esc(c.n) + '">' +
         '<span class="crit-max">/ ' + c.max + ' pts</span><div class="crit-bar"><div class="crit-bar-fill" id="cb-' + i + '" style="width:0%"></div></div>' +
-        '</div></div>';
+        '</div><div class="crit-hint">Ex: 8 ou 8.5</div></div>';
     });
     html += '<div class="card crit-row">' +
       '<div class="crit-name">Observações <span class="obs-optional">(opcional)</span></div>' +
@@ -152,7 +152,7 @@ var Aval = (function () {
   function lerNotas() {
     return CATS[fmCat].crit.map(function (c, i) {
       var inp = document.getElementById('ci-' + i);
-      return Math.min(Math.max(parseInt(inp.value, 10) || 0, 0), c.max);
+      return Math.min(Math.max(parseFloat(inp.value) || 0, 0), c.max);
     });
   }
 
@@ -161,7 +161,7 @@ var Aval = (function () {
     CATS[fmCat].crit.forEach(function (c, i) {
       var inp = document.getElementById('ci-' + i);
       if (!inp) return;
-      var v = Math.min(Math.max(parseInt(inp.value, 10) || 0, 0), c.max);
+      var v = Math.min(Math.max(parseFloat(inp.value) || 0, 0), c.max);
       if (inp.value !== '' && String(v) !== inp.value) inp.value = v;
       tot += v;
       document.getElementById('cb-' + i).style.width = Math.round(v / c.max * 100) + '%';
