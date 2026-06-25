@@ -210,6 +210,21 @@
   </div>
 </div>
 
+<!-- Modal customizado (substitui confirm/alert/prompt nativos) -->
+<div id="ui-modal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <div id="ui-modal-title" class="modal-title"></div>
+    <div id="ui-modal-msg" class="modal-msg"></div>
+    <div id="ui-modal-input-wrap" style="display:none">
+      <input type="text" id="ui-modal-input" class="modal-input">
+    </div>
+    <div class="modal-actions">
+      <button id="ui-modal-cancel" class="btn btn-sm">Cancelar</button>
+      <button id="ui-modal-ok" class="btn btn-sm btn-primary">Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <!-- AVALIADOR LOGIN -->
 <div id="s-aval-login" class="screen">
   <div class="topbar">

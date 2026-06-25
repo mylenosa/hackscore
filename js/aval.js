@@ -149,9 +149,15 @@ var Aval = (function () {
     if (fmEqId) sessionStorage.setItem('rascunho-' + fmEqId, JSON.stringify(lerNotas()));
   }
 
-  function voltarLista() {
-    if (UI.activeScreen() === 's-form' && formSujo() &&
-        !confirm('Sair agora descarta as notas não enviadas. Continuar?')) return;
+  async function voltarLista() {
+    if (UI.activeScreen() === 's-form' && formSujo()) {
+      var ok = await UI.modal({
+        title: 'Descartar notas?',
+        msg: 'Sair agora descarta as notas que você preencheu. Continuar?',
+        confirm: 'Sair sem salvar', danger: true
+      });
+      if (!ok) return;
+    }
     desativarGuarda();
     sessionStorage.removeItem('rascunho-' + fmEqId);
     UI.goTo('s-aval');
@@ -174,11 +180,11 @@ var Aval = (function () {
       try {
         status = await Api.enviarAvaliacao(Store.state.avalCod, fmEqId, Store.state.avalNome, lerNotas());
       } catch (e) {
-        alert(e.message + '\nVerifique a conexão e tente novamente.');
+        await UI.modal({ title: 'Erro ao enviar', msg: UI.esc(e.message) + '<br>Verifique a conexão e tente novamente.', confirm: 'OK', cancel: false });
         return;
       }
       if (status === 'codigo_invalido') {
-        alert('O código da banca foi alterado pelo admin. Entre novamente.');
+        await UI.modal({ title: 'Código alterado', msg: 'O código da banca foi alterado pelo admin. Entre novamente.', confirm: 'OK', cancel: false });
         logout();
         return;
       }

@@ -88,23 +88,30 @@ var Admin = (function () {
   }
 
   async function removeEquipe(id, nome) {
-    if (!confirm('Remover a equipe "' + nome + '" e todas as suas notas?')) return;
+    var ok = await UI.modal({
+      title: 'Remover equipe',
+      msg: 'Remover <strong>' + UI.esc(nome) + '</strong> e todas as suas avaliações? Esta ação não pode ser desfeita.',
+      confirm: 'Remover', danger: true
+    });
+    if (!ok) return;
     await Api.removeEquipe(pwd, id);
     await Store.sync();
     renderEquipes();
   }
 
   async function renameEquipe(id, nomeAtual) {
-    var novo = prompt('Novo nome para "' + nomeAtual + '":', nomeAtual);
-    if (!novo || novo.trim() === nomeAtual) return;
-    novo = novo.trim();
-    if (!novo) return;
+    var novo = await UI.prompt({
+      title: 'Renomear equipe',
+      msg: 'Novo nome para <strong>' + UI.esc(nomeAtual) + '</strong>:',
+      value: nomeAtual, placeholder: 'Nome da equipe', confirm: 'Salvar'
+    });
+    if (!novo || novo === nomeAtual) return;
     try {
       await Api.renameEquipe(pwd, id, novo);
       await Store.sync();
       renderEquipes();
     } catch (e) {
-      alert(e.message);
+      await UI.modal({ title: 'Erro', msg: UI.esc(e.message), confirm: 'OK', cancel: false });
     }
   }
 
@@ -138,7 +145,7 @@ var Admin = (function () {
 
   async function saveCod(btn) {
     var v = document.getElementById('cod-inp').value.trim().toUpperCase();
-    if (!v) { alert('Informe um código para a banca.'); return; }
+    if (!v) { await UI.modal({ title: 'Atenção', msg: 'Informe um código para a banca.', confirm: 'OK', cancel: false }); return; }
     await UI.busy(btn, async function () {
       await Api.setBancaCode(pwd, v);
       var ok = document.getElementById('cod-ok');
@@ -174,7 +181,12 @@ var Admin = (function () {
   }
 
   async function removeAvaliador(nome) {
-    if (!confirm('Remover ' + nome + ' e todas as notas dele(a)?')) return;
+    var ok = await UI.modal({
+      title: 'Remover avaliador',
+      msg: 'Remover <strong>' + UI.esc(nome) + '</strong> e todas as notas dele(a)? Esta ação não pode ser desfeita.',
+      confirm: 'Remover', danger: true
+    });
+    if (!ok) return;
     await Api.removeAvaliador(pwd, nome);
     await Store.sync();
     renderAvaliadores();
@@ -307,7 +319,7 @@ var Admin = (function () {
       try {
         await Api.resetAll(pwd);
       } catch (e) {
-        alert(e.message);
+        await UI.modal({ title: 'Erro', msg: UI.esc(e.message), confirm: 'OK', cancel: false });
         return;
       }
       await Store.sync();
