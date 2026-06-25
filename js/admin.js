@@ -88,10 +88,31 @@ var Admin = (function () {
   }
 
   async function removeEquipe(id, nome) {
-    if (!confirm('Remover a equipe "' + nome + '" e todas as suas notas?')) return;
+    var ok = await UI.modal({
+      title: 'Remover equipe',
+      msg: 'Remover <strong>' + UI.esc(nome) + '</strong> e todas as suas avaliações? Esta ação não pode ser desfeita.',
+      confirm: 'Remover', danger: true
+    });
+    if (!ok) return;
     await Api.removeEquipe(pwd, id);
     await Store.sync();
     renderEquipes();
+  }
+
+  async function renameEquipe(id, nomeAtual) {
+    var novo = await UI.prompt({
+      title: 'Renomear equipe',
+      msg: 'Novo nome para <strong>' + UI.esc(nomeAtual) + '</strong>:',
+      value: nomeAtual, placeholder: 'Nome da equipe', confirm: 'Salvar'
+    });
+    if (!novo || novo === nomeAtual) return;
+    try {
+      await Api.renameEquipe(pwd, id, novo);
+      await Store.sync();
+      renderEquipes();
+    } catch (e) {
+      await UI.modal({ title: 'Erro', msg: UI.esc(e.message), confirm: 'OK', cancel: false });
+    }
   }
 
   function renderEquipes() {
@@ -110,7 +131,10 @@ var Admin = (function () {
         var nAvs = Object.keys(Store.notasDe(eq.id)).length;
         html += '<div class="trow"><div><div class="trow-name">' + esc(eq.nome) + '</div>';
         if (nAvs) html += '<div class="trow-note"><i class="ti ti-check" aria-hidden="true"></i> ' + nAvs + ' avaliação(ões)</div>';
-        html += '</div><button class="btn btn-sm btn-danger" data-remove-eq="' + eq.id + '" data-nome="' + esc(eq.nome) + '" aria-label="Remover equipe ' + esc(eq.nome) + '"><i class="ti ti-trash" aria-hidden="true"></i></button></div>';
+        html += '</div><div class="trow-actions">' +
+          '<button class="btn btn-sm" data-rename-eq="' + eq.id + '" data-nome="' + esc(eq.nome) + '" aria-label="Renomear equipe ' + esc(eq.nome) + '"><i class="ti ti-pencil" aria-hidden="true"></i></button>' +
+          '<button class="btn btn-sm btn-danger" data-remove-eq="' + eq.id + '" data-nome="' + esc(eq.nome) + '" aria-label="Remover equipe ' + esc(eq.nome) + '"><i class="ti ti-trash" aria-hidden="true"></i></button>' +
+          '</div></div>';
       });
       html += '</div></div>';
     });
@@ -121,7 +145,7 @@ var Admin = (function () {
 
   async function saveCod(btn) {
     var v = document.getElementById('cod-inp').value.trim().toUpperCase();
-    if (!v) { alert('Informe um código para a banca.'); return; }
+    if (!v) { await UI.modal({ title: 'Atenção', msg: 'Informe um código para a banca.', confirm: 'OK', cancel: false }); return; }
     await UI.busy(btn, async function () {
       await Api.setBancaCode(pwd, v);
       var ok = document.getElementById('cod-ok');
@@ -157,7 +181,12 @@ var Admin = (function () {
   }
 
   async function removeAvaliador(nome) {
-    if (!confirm('Remover ' + nome + ' e todas as notas dele(a)?')) return;
+    var ok = await UI.modal({
+      title: 'Remover avaliador',
+      msg: 'Remover <strong>' + UI.esc(nome) + '</strong> e todas as notas dele(a)? Esta ação não pode ser desfeita.',
+      confirm: 'Remover', danger: true
+    });
+    if (!ok) return;
     await Api.removeAvaliador(pwd, nome);
     await Store.sync();
     renderAvaliadores();
@@ -223,8 +252,17 @@ var Admin = (function () {
         html += '<div class="res-det-empty">Sem avaliações.</div>';
       } else {
         CATS[cat].crit.forEach(function (c, i) {
-          html += '<div class="res-det-row"><span class="res-det-crit">' + c.n + '</span><span class="res-det-val">' + r.mc[i].toFixed(1) + '/' + c.max + '</span></div>';
+          html += '<div class="res-det-row"><span class="res-det-crit">' + esc(c.n) + '</span><span class="res-det-val">' + r.mc[i].toFixed(1) + '/' + c.max + '</span></div>';
         });
+        var obs = Store.obsDe(r.eq.id);
+        var obsAvs = Object.keys(obs).filter(function (av) { return obs[av]; });
+        if (obsAvs.length) {
+          html += '<div class="res-det-obs"><div class="res-det-obs-label">Observações</div>';
+          obsAvs.forEach(function (av) {
+            html += '<div class="res-det-obs-item"><strong>' + esc(av) + ':</strong> ' + esc(obs[av]) + '</div>';
+          });
+          html += '</div>';
+        }
       }
       html += '</div>';
     });
@@ -252,6 +290,13 @@ var Admin = (function () {
       linhas.push('');
       linhas.push('ℹ️ Posição decidida por desempate: ' + r.motivoDesempate);
     }
+    var obs = Store.obsDe(eqId);
+    var obsAvs = Object.keys(obs).filter(function (av) { return obs[av]; });
+    if (obsAvs.length) {
+      linhas.push('');
+      linhas.push('📝 Observações:');
+      obsAvs.forEach(function (av) { linhas.push('• ' + av + ': ' + obs[av]); });
+    }
     linhas.push('');
     linhas.push('🏫 Hackathon Extensionista IFRO Ariquemes 2026/1');
     navigator.clipboard.writeText(linhas.join('\n'));
@@ -276,6 +321,8 @@ var Admin = (function () {
   function fecharReset() {
     document.getElementById('dz-confirm').style.display = 'none';
     document.getElementById('dz-open').style.display = 'inline-flex';
+    var det = document.getElementById('dz-details');
+    if (det) det.open = false;
   }
 
   function checarReset() {
@@ -288,7 +335,7 @@ var Admin = (function () {
       try {
         await Api.resetAll(pwd);
       } catch (e) {
-        alert(e.message);
+        await UI.modal({ title: 'Erro', msg: UI.esc(e.message), confirm: 'OK', cancel: false });
         return;
       }
       await Store.sync();
@@ -310,14 +357,15 @@ var Admin = (function () {
   function exportCsv() {
     var linhas = [['Categoria', 'Posição', 'Equipe', 'Avaliador',
       'Critério 1', 'Critério 2', 'Critério 3', 'Critério 4', 'Critério 5', 'Critério 6', 'Critério 7',
-      'Total do avaliador', 'Média da equipe']];
+      'Total do avaliador', 'Média da equipe', 'Observação']];
     CAT_KEYS.forEach(function (cat) {
       Store.ranking(cat).forEach(function (r) {
         var notas = Store.notasDe(r.eq.id);
+        var obs = Store.obsDe(r.eq.id);
         var avs = Object.keys(notas).sort();
         var media = r.media !== null ? String(r.media).replace('.', ',') : '';
         if (!avs.length) {
-          linhas.push([CATS[cat].full, r.pos + 'º', r.eq.nome, '(sem avaliações)', '', '', '', '', '', '', '', '', media]);
+          linhas.push([CATS[cat].full, r.pos + 'º', r.eq.nome, '(sem avaliações)', '', '', '', '', '', '', '', '', media, '']);
           return;
         }
         avs.forEach(function (a) {
@@ -326,6 +374,7 @@ var Admin = (function () {
           for (var i = 0; i < 7; i++) row.push(ns[i] != null ? ns[i] : '');
           row.push(Store.somaNotas(ns));
           row.push(media);
+          row.push(obs[a] || '');
           linhas.push(row);
         });
       });
@@ -366,8 +415,10 @@ var Admin = (function () {
      evitando concatenar nomes digitados dentro de atributos onclick. */
   function bindListas() {
     document.getElementById('lista-eq').addEventListener('click', function (ev) {
-      var btn = ev.target.closest('[data-remove-eq]');
-      if (btn) removeEquipe(btn.dataset.removeEq, btn.dataset.nome);
+      var rem = ev.target.closest('[data-remove-eq]');
+      if (rem) { removeEquipe(rem.dataset.removeEq, rem.dataset.nome); return; }
+      var ren = ev.target.closest('[data-rename-eq]');
+      if (ren) renameEquipe(ren.dataset.renameEq, ren.dataset.nome);
     });
     document.getElementById('lista-av').addEventListener('click', function (ev) {
       var btn = ev.target.closest('[data-remove-av]');

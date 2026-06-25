@@ -206,6 +206,7 @@ body {
 .trow-sub { font-size: 12px; color: var(--text2); margin-top: 3px; }
 .trow-grow { flex: 1; min-width: 0; }
 .trow-action { margin-left: 10px; flex-shrink: 0; }
+.trow-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 10px; }
 
 /* ── Resultados ── */
 .res-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
@@ -267,6 +268,7 @@ body {
 .crit-inp-row input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(29,158,117,0.15); }
 .crit-inp-row input:disabled { background: var(--bg2); color: var(--text3); }
 .crit-max { font-size: 13px; color: var(--text3); white-space: nowrap; flex-shrink: 0; }
+.crit-hint { font-size: 11px; color: var(--text3); margin-top: 3px; }
 .crit-bar { flex: 1; height: 4px; background: var(--bg2); border-radius: 2px; overflow: hidden; }
 .crit-bar-fill { height: 100%; background: var(--teal); border-radius: 2px; transition: width 0.2s; }
 
@@ -443,9 +445,52 @@ body {
 .faq-footer { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--text2); line-height: 1.5; }
 .faq-footer i { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
 
+/* ── Textarea de observações (formulário do avaliador) ── */
+.fm-obs { width: 100%; min-height: 80px; resize: vertical; padding: 10px 12px; margin-top: 8px;
+  border: 0.5px solid var(--border2); border-radius: var(--radius);
+  background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit; line-height: 1.5; }
+.fm-obs:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(29,158,117,0.15); }
+.obs-optional { font-size: 12px; color: var(--text3); font-weight: 400; }
+.obs-counter { font-size: 12px; color: var(--text3); text-align: right; margin-top: 4px; }
+
+/* ── Observações nos detalhes de resultado ── */
+.res-det-obs { margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--border); }
+.res-det-obs-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+.res-det-obs-item { font-size: 13px; color: var(--text2); margin-bottom: 4px; line-height: 1.4; }
+.res-det-obs-item strong { color: var(--text); }
+
+/* ── Modal customizado ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.modal-box {
+  background: var(--bg);
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  width: 100%; max-width: 360px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+.modal-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.modal-msg { font-size: 14px; color: var(--text2); line-height: 1.5; margin-bottom: 16px; }
+.modal-msg strong { color: var(--text); }
+.modal-input {
+  width: 100%; padding: 10px 12px; margin-bottom: 16px;
+  border: 0.5px solid var(--border2); border-radius: var(--radius);
+  background: var(--bg); color: var(--text); font-size: 15px; font-family: inherit;
+}
+.modal-input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(29,158,117,0.15); }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
 /* ── Zona de perigo (reset total) ── */
 .danger-zone { border-color: var(--danger); margin-top: 20px; }
-.dz-title { color: var(--danger); display: flex; align-items: center; gap: 6px; }
+.danger-zone > summary { list-style: none; cursor: pointer; }
+.danger-zone > summary::-webkit-details-marker { display: none; }
+.dz-title { color: var(--danger); display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; }
+.danger-zone .btn-danger { margin-top: 12px; }
 .danger-zone .confirm-box { margin-top: 12px; margin-bottom: 0; }
 .danger-zone .input-row { flex-wrap: wrap; }
 .danger-zone .input-row input { min-width: 120px; }

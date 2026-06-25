@@ -63,5 +63,67 @@ var UI = (function () {
     }
   }
 
-  return { esc: esc, goTo: goTo, activeScreen: activeScreen, abrirAjuda: abrirAjuda, fecharAjuda: fecharAjuda, showErr: showErr, hideErr: hideErr, badge: badge, catHeader: catHeader, busy: busy };
+  /* Modal customizado — substitui confirm(), alert() e prompt() nativos.
+     UI.modal({ title, msg, confirm, cancel, danger })  → Promise<boolean>
+     UI.prompt({ title, msg, value, placeholder })       → Promise<string|null> */
+  function modal(opts) {
+    return new Promise(function (resolve) {
+      var el = document.getElementById('ui-modal');
+      document.getElementById('ui-modal-title').textContent = opts.title || '';
+      document.getElementById('ui-modal-msg').innerHTML = opts.msg || '';
+      document.getElementById('ui-modal-input-wrap').style.display = 'none';
+      var okBtn = document.getElementById('ui-modal-ok');
+      var cancelBtn = document.getElementById('ui-modal-cancel');
+      okBtn.textContent = opts.confirm || 'Confirmar';
+      okBtn.className = 'btn btn-sm' + (opts.danger ? ' btn-danger' : ' btn-primary');
+      cancelBtn.textContent = opts.cancel || 'Cancelar';
+      cancelBtn.style.display = opts.cancel === false ? 'none' : '';
+      el.style.display = 'flex';
+      document.getElementById('ui-modal-input').value = '';
+      function fechar(val) {
+        el.style.display = 'none';
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        resolve(val);
+      }
+      okBtn.onclick = function () { fechar(true); };
+      cancelBtn.onclick = function () { fechar(false); };
+    });
+  }
+
+  function prompt(opts) {
+    return new Promise(function (resolve) {
+      var el = document.getElementById('ui-modal');
+      document.getElementById('ui-modal-title').textContent = opts.title || '';
+      document.getElementById('ui-modal-msg').innerHTML = opts.msg || '';
+      var wrap = document.getElementById('ui-modal-input-wrap');
+      var inp = document.getElementById('ui-modal-input');
+      wrap.style.display = 'block';
+      inp.value = opts.value || '';
+      inp.placeholder = opts.placeholder || '';
+      var okBtn = document.getElementById('ui-modal-ok');
+      var cancelBtn = document.getElementById('ui-modal-cancel');
+      okBtn.textContent = opts.confirm || 'Confirmar';
+      okBtn.className = 'btn btn-sm btn-primary';
+      cancelBtn.textContent = opts.cancel || 'Cancelar';
+      cancelBtn.style.display = '';
+      el.style.display = 'flex';
+      setTimeout(function () { inp.focus(); inp.select(); }, 50);
+      function fechar(val) {
+        el.style.display = 'none';
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        inp.onkeydown = null;
+        resolve(val);
+      }
+      inp.onkeydown = function (e) {
+        if (e.key === 'Enter') fechar(inp.value.trim() || null);
+        if (e.key === 'Escape') fechar(null);
+      };
+      okBtn.onclick = function () { fechar(inp.value.trim() || null); };
+      cancelBtn.onclick = function () { fechar(null); };
+    });
+  }
+
+  return { esc: esc, goTo: goTo, activeScreen: activeScreen, abrirAjuda: abrirAjuda, fecharAjuda: fecharAjuda, showErr: showErr, hideErr: hideErr, badge: badge, catHeader: catHeader, busy: busy, modal: modal, prompt: prompt };
 })();

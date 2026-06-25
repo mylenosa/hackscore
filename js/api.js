@@ -72,14 +72,18 @@ var Api = (function () {
       return rpc('admin_remove_equipe', { p_pwd: pwd, p_id: id }, 'Erro ao remover equipe');
     },
 
+    renameEquipe: function (pwd, id, nome) {
+      return rpc('admin_rename_equipe', { p_pwd: pwd, p_id: id, p_nome: nome }, 'Erro ao renomear equipe');
+    },
+
     removeAvaliador: function (pwd, nome) {
       return rpc('admin_remove_avaliador', { p_pwd: pwd, p_nome: nome }, 'Erro ao remover avaliador');
     },
 
     /* ── envio de avaliação (exige o código da banca) ──
        Retorna 'ok' | 'duplicada' | 'codigo_invalido'. */
-    enviarAvaliacao: function (code, equipeId, avaliador, notas) {
-      return rpc('enviar_avaliacao', { p_code: code, p_equipe: equipeId, p_avaliador: avaliador, p_notas: notas }, 'Erro ao enviar avaliação');
+    enviarAvaliacao: function (code, equipeId, avaliador, notas, obs) {
+      return rpc('enviar_avaliacao', { p_code: code, p_equipe: equipeId, p_avaliador: avaliador, p_notas: notas, p_obs: obs || null }, 'Erro ao enviar avaliação');
     }
   };
 })();
