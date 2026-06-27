@@ -459,6 +459,16 @@ body {
 .res-det-obs-item { font-size: 13px; color: var(--text2); margin-bottom: 4px; line-height: 1.4; }
 .res-det-obs-item strong { color: var(--text); }
 
+/* ── Rodapé ── */
+.app-footer {
+  text-align: center;
+  padding: 20px 16px;
+  font-size: 12px;
+  color: var(--text3);
+}
+.app-footer a { color: var(--text3); text-decoration: underline; }
+.app-footer a:hover { color: var(--text2); }
+
 /* ── Modal customizado ── */
 .modal-overlay {
   position: fixed; inset: 0; z-index: 9999;
