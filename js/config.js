@@ -11,8 +11,8 @@ var CONFIG = {
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlocG9jb3hseGtleHd1eG52bXN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMzOTU0NzYsImV4cCI6MjEwODk3MTQ3Nn0.VwyIboGa0lg1EeRYugUdgdGMTO5UGQLR3gabj9rokFU',
 
   /* Evento — aparece na home e no telão */
-  EVENT_NAME: 'Nome do Evento',  // ex: "Hackathon IFRO 2026"
-  EVENT_SUB:  'Local',           // ex: "Ariquemes" ou "Campus Centro"
+  EVENT_NAME: 'AGROHACK',  // ex: "Hackathon IFRO 2026"
+  EVENT_SUB:  'IFRO Campus Ariquemes',           // ex: "Ariquemes" ou "Campus Centro"
 
   /* Sistema */
   POLL_MS: 5000 // intervalo de atualização automática (ms)
