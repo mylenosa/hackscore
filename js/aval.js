@@ -164,6 +164,10 @@ var Aval = (function () {
     UI.goTo('s-form');
   }
 
+  function maxPontos(cat) {
+    return CATS[cat].crit.reduce(function (s, c) { return s + c.max; }, 0);
+  }
+
   function lerNotas() {
     return CATS[fmCat].crit.map(function (c, i) {
       var inp = document.getElementById('ci-' + i);
@@ -172,6 +176,7 @@ var Aval = (function () {
   }
 
   function atualizarTotal() {
+    var max = maxPontos(fmCat);
     var tot = 0;
     CATS[fmCat].crit.forEach(function (c, i) {
       var inp = document.getElementById('ci-' + i);
@@ -182,7 +187,7 @@ var Aval = (function () {
       document.getElementById('cb-' + i).style.width = Math.round(v / c.max * 100) + '%';
     });
     document.getElementById('fm-total').textContent = tot + ' pts';
-    document.getElementById('fm-pbar').style.width = tot + '%';
+    document.getElementById('fm-pbar').style.width = Math.round(tot / max * 100) + '%';
     if (fmEqId) sessionStorage.setItem('rascunho-' + fmEqId, JSON.stringify({ notas: lerNotas(), obs: lerObs() }));
   }
 

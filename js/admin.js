@@ -30,14 +30,34 @@ var Admin = (function () {
       } catch (e) {
         UI.showErr('adm-err', e.message); return;
       }
+      sessionStorage.setItem('admin_ok', '1');
+      sessionStorage.setItem('admin_pwd', pwd);
       UI.goTo('s-admin');
       renderEquipes();
       renderAvaliadores();
     });
   }
 
+  async function retomarSessao() {
+    pwd = sessionStorage.getItem('admin_pwd') || '';
+    if (!pwd) { sessionStorage.removeItem('admin_ok'); return; }
+    try {
+      await Store.sync();
+      document.getElementById('cod-inp').value = await Api.getBancaCode(pwd);
+    } catch (e) {
+      sessionStorage.removeItem('admin_ok');
+      sessionStorage.removeItem('admin_pwd');
+      return;
+    }
+    UI.goTo('s-admin');
+    renderEquipes();
+    renderAvaliadores();
+  }
+
   function logout() {
     pwd = '';
+    sessionStorage.removeItem('admin_ok');
+    sessionStorage.removeItem('admin_pwd');
     UI.goTo('s-home');
   }
 
@@ -148,9 +168,27 @@ var Admin = (function () {
     if (!v) { await UI.modal({ title: 'Atenção', msg: 'Informe um código para a banca.', confirm: 'OK', cancel: false }); return; }
     await UI.busy(btn, async function () {
       await Api.setBancaCode(pwd, v);
+      renderQrCode(v);
       var ok = document.getElementById('cod-ok');
       ok.style.display = 'flex';
       setTimeout(function () { ok.style.display = 'none'; }, 2500);
+    });
+  }
+
+  function renderQrCode(code) {
+    var wrap = document.getElementById('qr-wrap');
+    if (!wrap) return;
+    var url = window.location.origin + window.location.pathname + '?code=' + encodeURIComponent(code);
+    wrap.innerHTML = '<div id="qr-box"></div>' +
+      '<button class="btn btn-sm" id="qr-copy"><i class="ti ti-link" aria-hidden="true"></i> Copiar link</button>';
+    /* global QRCode */
+    new QRCode(document.getElementById('qr-box'), { text: url, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.M });
+    document.getElementById('qr-copy').addEventListener('click', function () {
+      navigator.clipboard.writeText(url).then(function () {
+        var btn = document.getElementById('qr-copy');
+        btn.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> Copiado!';
+        setTimeout(function () { btn.innerHTML = '<i class="ti ti-link" aria-hidden="true"></i> Copiar link'; }, 2000);
+      });
     });
   }
 
@@ -298,7 +336,7 @@ var Admin = (function () {
       obsAvs.forEach(function (av) { linhas.push('• ' + av + ': ' + obs[av]); });
     }
     linhas.push('');
-    linhas.push('🏫 Hackathon Extensionista IFRO Ariquemes 2026/1');
+    linhas.push('🏆 ' + CONFIG.EVENT_NAME);
     navigator.clipboard.writeText(linhas.join('\n'));
     var ok = document.getElementById('rank-ok');
     ok.querySelector ? (ok.querySelector('span') ? ok.querySelector('span').textContent = 'Análise copiada!' : null) : null;
@@ -393,7 +431,7 @@ var Admin = (function () {
   }
 
   function copiarRanking() {
-    var linhas = ['🏆 Ranking — Hackathon IFRO 2026\n'];
+    var linhas = ['🏆 Ranking — ' + CONFIG.EVENT_NAME + '\n'];
     CAT_KEYS.forEach(function (cat) {
       var rank = Store.ranking(cat);
       if (!rank.length) return;
@@ -431,7 +469,8 @@ var Admin = (function () {
   }
 
   return {
-    login: login, logout: logout, switchTab: switchTab, refresh: refresh,
+    login: login, logout: logout, retomarSessao: retomarSessao,
+    switchTab: switchTab, refresh: refresh,
     addEquipe: addEquipe, saveCod: saveCod, bindListas: bindListas,
     abrirReset: abrirReset, fecharReset: fecharReset, checarReset: checarReset,
     resetAll: resetAll, exportCsv: exportCsv, copiarRanking: copiarRanking, copiarAnaliseEquipe: copiarAnaliseEquipe

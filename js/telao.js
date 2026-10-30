@@ -64,8 +64,8 @@ var Telao = (function () {
       return '<button class="telao-btn telao-pick" data-cat="' + k + '">' + CATS[k].full + '</button>';
     }).join('');
     body().innerHTML = '<div class="telao">' + toolbar() +
-      '<div class="telao-name telao-title">Revelação</div>' +
-      '<div class="telao-pts">Escolha a categoria para revelar</div>' +
+      '<div class="telao-name telao-title">Hackscore</div>' +
+      '<div class="telao-pts">' + UI.esc(CONFIG.EVENT_NAME) + ' · Escolha a categoria</div>' +
       '<div class="telao-pick-wrap">' + opcoes + '</div></div>';
   }
 

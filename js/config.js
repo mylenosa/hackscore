@@ -1,15 +1,35 @@
-/* Configuração geral — preencha com os dados do seu projeto Supabase
-   (Painel Supabase → Settings → API). */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Hackscore — arquivo de configuração
+   Preencha as seções abaixo antes de publicar. É o único arquivo que você
+   precisa editar para adaptar o sistema a um novo evento.
+   ───────────────────────────────────────────────────────────────────────────── */
 'use strict';
 
 var CONFIG = {
-  SUPABASE_URL: 'https://wfrzphrxhctvqguubxge.supabase.co',      // ex: https://abcdefgh.supabase.co
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcnpwaHJ4aGN0dnFndXVieGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExNDE2NDIsImV4cCI6MjA5NjcxNzY0Mn0.cU1nULoSbZJwtJIQSu43K_BLxJ3D0fnElICdZnNj0Zs',
-  // a senha do admin fica no banco (tabela config) — veja supabase/schema.sql
-  POLL_MS: 5000 // intervalo de atualização automática das telas
+  /* Supabase — Painel Supabase → Settings → API */
+  SUPABASE_URL: 'https://yhpocoxlxkexwuxnvmsu.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlocG9jb3hseGtleHd1eG52bXN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMzOTU0NzYsImV4cCI6MjEwODk3MTQ3Nn0.VwyIboGa0lg1EeRYugUdgdGMTO5UGQLR3gabj9rokFU',
+
+  /* Evento — aparece na home e no telão */
+  EVENT_NAME: 'Nome do Evento',  // ex: "Hackathon IFRO 2026"
+  EVENT_SUB:  'Local',           // ex: "Ariquemes" ou "Campus Centro"
+
+  /* Sistema */
+  POLL_MS: 5000 // intervalo de atualização automática (ms)
 };
 
-/* Categorias e critérios do edital */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Categorias e critérios
+   Cada chave de CATS é um identificador curto (sem espaços, sem acentos).
+   - label: nome curto (usado em chips e abas)
+   - full:  nome completo (usado no telão)
+   - tc:    classe CSS da aba (ex: 'tc-emp') — defina em css/styles.css se criar nova
+   - bc:    classe CSS do badge (ex: 'b-emp') — idem
+   - crit:  lista de critérios; max deve somar o total desejado (ex: 100)
+
+   Para adicionar uma categoria: copie um bloco abaixo, troque a chave e os campos,
+   e adicione a chave em CAT_KEYS. Para remover, faça o inverso.
+   ───────────────────────────────────────────────────────────────────────────── */
 var CATS = {
   emp: {
     label: 'Empresa e Comunidade', full: 'Desafio Empresa e Comunidade', tc: 'tc-emp', bc: 'b-emp',

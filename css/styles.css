@@ -1,4 +1,4 @@
-/* Estilos — Hackathon IFRO 2026
+/* Estilos — Hackscore
    Organização: tokens → base → componentes → telas → telão */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -468,6 +468,10 @@ body {
 }
 .app-footer a { color: var(--text3); text-decoration: underline; }
 .app-footer a:hover { color: var(--text2); }
+
+/* ── QR Code ── */
+.qr-wrap { margin-top: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.qr-wrap #qr-box img, .qr-wrap #qr-box canvas { border-radius: 8px; display: block; }
 
 /* ── Modal customizado ── */
 .modal-overlay {

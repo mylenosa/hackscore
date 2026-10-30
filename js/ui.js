@@ -12,11 +12,26 @@ var UI = (function () {
       .replace(/'/g, '&#39;');
   }
 
-  function goTo(id) {
+  function activateScreen(id) {
     document.querySelectorAll('.screen').forEach(function (s) { s.classList.remove('active'); });
     document.getElementById(id).classList.add('active');
     window.scrollTo(0, 0);
   }
+
+  function goTo(id) {
+    history.pushState({ screen: id }, '', '#' + id);
+    activateScreen(id);
+  }
+
+  window.addEventListener('popstate', function (e) {
+    var id = e.state && e.state.screen;
+    if (!id) { activateScreen('s-home'); return; }
+    var form = document.getElementById('s-form');
+    if (form && form.classList.contains('active')) {
+      Aval.voltarLista(); return;
+    }
+    activateScreen(id);
+  });
 
   function activeScreen() {
     var el = document.querySelector('.screen.active');

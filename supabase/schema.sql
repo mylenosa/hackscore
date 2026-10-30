@@ -24,7 +24,7 @@ create table if not exists public.config (
 create table if not exists public.equipes (
   id         uuid primary key default gen_random_uuid(),
   nome       text not null,
-  cat        text not null check (cat in ('emp', 'liv', 'pio')),
+  cat        text not null,  -- qualquer chave definida em CAT_KEYS (js/config.js)
   created_at timestamptz not null default now()
 );
 

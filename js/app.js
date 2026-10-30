@@ -51,7 +51,36 @@
     });
   });
 
+  /* Preenche textos dinâmicos com dados do config */
+  function aplicarBranding() {
+    document.title = 'Hackscore — ' + CONFIG.EVENT_NAME;
+    var sub = document.getElementById('home-sub');
+    if (sub) sub.textContent = CONFIG.EVENT_NAME + (CONFIG.EVENT_SUB ? ' · ' + CONFIG.EVENT_SUB : '');
+
+    // select de categorias gerado dinamicamente
+    var sel = document.getElementById('eq-cat');
+    if (sel) {
+      sel.innerHTML = '';
+      CAT_KEYS.forEach(function (k) {
+        var opt = document.createElement('option');
+        opt.value = k;
+        opt.textContent = CATS[k].label;
+        sel.appendChild(opt);
+      });
+    }
+  }
+
+  /* Lê ?code= da URL e pré-preenche o campo de código do avaliador */
+  function lerCodigoDaUrl() {
+    var params = new URLSearchParams(window.location.search);
+    var code = params.get('code');
+    if (!code) return;
+    var inp = document.getElementById('av-cod');
+    if (inp) inp.value = code.trim().toUpperCase();
+  }
+
   async function init() {
+    aplicarBranding();
     renderAjudaCriterios();
     if (!configurado()) {
       document.body.innerHTML = '<div class="empty" style="padding-top:80px"><i class="ti ti-database-x" aria-hidden="true"></i>' +
@@ -61,6 +90,9 @@
     Admin.bindListas();
     Aval.bindLista();
     startPolling();
+    lerCodigoDaUrl();
+    // se o admin recarregou a página, restaura a sessão sem pedir senha
+    if (sessionStorage.getItem('admin_ok')) { await Admin.retomarSessao(); return; }
     // se o avaliador recarregou a página, volta direto para o painel dele
     await Aval.retomarSessao();
   }
