@@ -19,7 +19,12 @@ var CONFIG = {
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Categorias e critérios
+   Categorias e critérios — ⚠️ TROQUE ISTO PARA O SEU EVENTO ⚠️
+   Os valores abaixo são os do edital do evento atual. Para reaproveitar o
+   projeto em outro hackathon, substitua todo o conteúdo de CATS e CAT_KEYS
+   pelos critérios do seu próprio edital — o restante do sistema (telas,
+   cálculo de médias, ranking, desempate) se adapta automaticamente.
+
    Cada chave de CATS é um identificador curto (sem espaços, sem acentos).
    - label: nome curto (usado em chips e abas)
    - full:  nome completo (usado no telão)
@@ -31,42 +36,17 @@ var CONFIG = {
    e adicione a chave em CAT_KEYS. Para remover, faça o inverso.
    ───────────────────────────────────────────────────────────────────────────── */
 var CATS = {
-  emp: {
-    label: 'Empresa e Comunidade', full: 'Desafio Empresa e Comunidade', tc: 'tc-emp', bc: 'b-emp',
+  agro: {
+    label: 'Agronomia', full: 'Desafio da Agronomia — Gestão Inteligente de Insumos Rurais', tc: 'tc-emp', bc: 'b-emp',
     crit: [
-      { n: 'Relevância do problema e aderência extensionista', max: 20 },
-      { n: 'MVP ou protótipo funcional online', max: 20 },
-      { n: 'Impacto, validação, prospecção ou tentativa de implantação', max: 20 },
-      { n: 'Uso responsável e produtivo de inteligência artificial', max: 10 },
-      { n: 'Qualidade técnica, organização do código e documentação no GitHub', max: 10 },
-      { n: 'Usabilidade, acessibilidade e experiência do usuário', max: 10 },
-      { n: 'Pitch, clareza da apresentação e defesa da solução', max: 10 }
-    ]
-  },
-  liv: {
-    label: 'Impacto Regional', full: 'Desafio Livre de Impacto Regional', tc: 'tc-liv', bc: 'b-liv',
-    crit: [
-      { n: 'Relevância do problema e aderência extensionista', max: 20 },
-      { n: 'MVP ou protótipo funcional online', max: 20 },
-      { n: 'Impacto, validação, prospecção ou tentativa de implantação', max: 20 },
-      { n: 'Uso responsável e produtivo de inteligência artificial', max: 10 },
-      { n: 'Qualidade técnica, organização do código e documentação no GitHub', max: 10 },
-      { n: 'Usabilidade, acessibilidade e experiência do usuário', max: 10 },
-      { n: 'Pitch, clareza da apresentação e defesa da solução', max: 10 }
-    ]
-  },
-  pio: {
-    label: 'Pior Experiência UX', full: 'Desafio Pior Experiência de Usuário', tc: 'tc-pio', bc: 'b-pio',
-    crit: [
-      { n: 'Funcionamento do fluxo e conclusão da experiência pelo usuário', max: 20 },
-      { n: 'Criatividade e coerência da experiência propositalmente ruim', max: 20 },
-      { n: 'Explicação dos princípios de UX/UI violados no README', max: 20 },
-      { n: 'MVP online, link público e facilidade de acesso por QR Code', max: 15 },
-      { n: 'Proposta de melhoria ou versão corrigida do fluxo', max: 10 },
-      { n: 'Pitch, clareza da apresentação e defesa da proposta', max: 10 },
-      { n: 'Uso responsável de IA e documentação das ferramentas utilizadas', max: 5 }
+      { n: 'Problema e aderência ao desafio', max: 20 },
+      { n: 'Funcionamento da solução', max: 20 },
+      { n: 'Análise, alertas e apoio à decisão', max: 20 },
+      { n: 'Validação e utilidade para o público', max: 15 },
+      { n: 'Código, documentação e uso responsável de IA', max: 15 },
+      { n: 'Clareza, acessibilidade e apresentação', max: 10 }
     ]
   }
 };
 
-var CAT_KEYS = ['emp', 'liv', 'pio'];
+var CAT_KEYS = ['agro'];
