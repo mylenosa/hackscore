@@ -55,6 +55,12 @@ drop policy if exists "leitura avaliacoes" on public.avaliacoes;
 create policy "leitura equipes"    on public.equipes    for select using (true);
 create policy "leitura avaliacoes" on public.avaliacoes for select using (true);
 
+-- ─── Permissões de tabela: sem isto, anon recebe "permission denied" mesmo
+--     com a RLS correta (grants de tabela não têm padrão em todo projeto) ──
+
+grant usage on schema public to anon, authenticated;
+grant select on public.equipes, public.avaliacoes to anon, authenticated;
+
 -- ─── Funções internas (NÃO expostas na API — ver revokes abaixo) ───────────
 
 create or replace function public.app_config(p_key text) returns text
@@ -174,3 +180,19 @@ begin
   end;
   return 'ok';
 end $$;
+
+-- ─── Permissões: funções chamadas pelo front-end (senha/código validam o acesso) ──
+
+grant execute on function
+  public.admin_login(text),
+  public.check_banca_code(text),
+  public.admin_get_banca_code(text),
+  public.admin_set_banca_code(text, text),
+  public.admin_add_equipe(text, text, text),
+  public.admin_rename_equipe(text, uuid, text),
+  public.admin_remove_equipe(text, uuid),
+  public.admin_remove_avaliador(text, text),
+  public.admin_add_equipes(text, text[], text),
+  public.admin_reset_all(text),
+  public.enviar_avaliacao(text, uuid, text, jsonb, text)
+to anon, authenticated;
